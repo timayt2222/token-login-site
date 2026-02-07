@@ -1,423 +1,954 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alts Hosting - Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alts Hosting</title>
 
-<!-- Lucide icons script -->
-<script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
 
-<style>
-  :root {
-    --bg-light: #f7faff;
-    --bg-dark: #111827;
-    --text-light: #1f2937;
-    --text-dark: #e5e7eb;
-    --muted-light: #6b7280;
-    --muted-dark: #9ca3af;
-    --primary: #2563eb;
-    --primary2: #1d4ed8;
-    --primary-glow: 0 0 12px rgba(37,99,235,0.45);
-    --border-light: #e5e7eb;
-    --border-dark: #374151;
-    --danger: #dc2626;
-  }
-  
-  *{box-sizing:border-box;}
+  <style>
+    :root{
+      --bg:#f6f8ff;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#e2e8f0;
 
-  body {
-    margin: 0;
-    font-family: ui-sans-serif, system-ui, sans-serif;
-    background: var(--bg-light);
-    color: var(--text-light);
-    transition: background .2s, color .2s;
-  }
-  
-  body.dark {
-    background: var(--bg-dark);
-    color: var(--text-dark);
-  }
-  
-  .screen{ display:none;}
-  .screen.active{ display:block;}
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --glow:0 0 16px rgba(37,99,235,.45);
 
-  /* GENERAL BUTTONS */
-  button {
-    cursor: pointer;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 16px;
-    font-weight: 800;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: .15s;
-  }
-  button:hover{ transform: translateY(-2px); }
-  
-  .btn-primary {
-    background: var(--primary);
-    color: #fff;
-    box-shadow: var(--primary-glow);
-  }
-  .btn-primary:hover {
-    background: var(--primary2);
-  }
-  
-  .btn-ghost {
-    background: #fff;
-    border: 1px solid var(--border-light);
-    color: var(--text-light);
-  }
-  body.dark .btn-ghost {
-    border: 1px solid var(--border-dark);
-    color: var(--text-dark);
-  }
+      --danger:#dc2626;
+      --dangerBg:rgba(220,38,38,.08);
 
-  .btn-danger {
-    background: #fff;
-    border: 1px solid rgba(220,38,38,0.35);
-    color: var(--danger);
-  }
+      --shadow:0 14px 60px rgba(2,6,23,.08);
+      --radius:18px;
+    }
+    body.dark{
+      --bg:#0b1220;
+      --card:#111b2f;
+      --text:#e5e7eb;
+      --muted:#9aa4b2;
+      --border:#22314f;
 
-  .status { margin-top: 10px; font-weight: 700; color: var(--muted-light);}
-  body.dark .status{ color: var(--muted-dark);}
+      --shadow:0 20px 70px rgba(0,0,0,.35);
+    }
 
-  .wrap {
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 28px 18px;
-  }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:var(--bg);
+      color:var(--text);
+      transition:.2s background, .2s color;
+    }
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:26px 18px;
+    }
 
-  .login-card {
-    border: 1px solid var(--border-light);
-    border-radius: 16px;
-    padding: 22px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-    background: #fff;
-  }
-  body.dark .login-card {
-    border: 1px solid var(--border-dark);
-    background: #374151;
-  }
+    .row{display:flex; gap:18px; align-items:stretch}
+    @media (max-width: 920px){
+      .row{flex-direction:column}
+    }
 
-  .title{ font-size: 24px; font-weight:900; margin-bottom:8px;}
-  .tab { display:flex; gap:12px; margin-bottom:16px;}
-  .tab button { font-size:16px;}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .cardHeader{
+      padding:16px 18px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .cardTitle{
+      font-weight:900;
+      font-size:18px;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .cardBody{padding:16px 18px}
 
-  textarea, input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-light);
-    border-radius: 10px;
-    font-size: 14px;
-    margin-top: 6px;
-  }
-  body.dark textarea, body.dark input {
-    border: 1px solid var(--border-dark);
-    background: #1f2937;
-    color: var(--text-dark);
-  }
+    .muted{color:var(--muted); font-weight:700}
+    .bigTitle{font-size:26px; font-weight:950; margin:0}
+    .sub{margin:8px 0 0; color:var(--muted); font-weight:700}
 
-  .dashboard-top { display:flex; justify-content: space-between; align-items:center;}
-  .file-list {margin-top:12px; list-style:none;padding:0;}
-  .file-list li{
-    padding: 8px 0;
-    border-bottom:1px solid var(--border-light);
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  body.dark .file-list li{ border-bottom:1px solid var(--border-dark);}
+    .btn{
+      cursor:pointer;
+      border:1px solid transparent;
+      padding:10px 14px;
+      border-radius:14px;
+      font-weight:900;
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+      transition:.15s transform, .15s background, .15s border-color, .15s box-shadow;
+      user-select:none;
+    }
+    .btn svg{width:18px;height:18px}
+    .btn:hover{transform:translateY(-2px)}
+    .btnBlue{
+      background:var(--blue);
+      color:white;
+      box-shadow:var(--glow);
+    }
+    .btnBlue:hover{background:var(--blue2)}
+    .btnGhost{
+      background:transparent;
+      color:var(--text);
+      border-color:var(--border);
+    }
+    .btnGhost:hover{background:rgba(37,99,235,.08); border-color:rgba(37,99,235,.25)}
+    .btnDanger{
+      background:transparent;
+      color:var(--danger);
+      border-color:rgba(220,38,38,.35);
+    }
+    .btnDanger:hover{background:var(--dangerBg); border-color:rgba(220,38,38,.55)}
 
-  .drop-zone {
-    margin-top: 18px;
-    border: 2px dashed var(--border-light);
-    padding: 28px;
-    border-radius: 14px;
-    text-align: center;
-    color: var(--muted-light);
-    cursor: pointer;
-    transition: .2s;
-  }
-  body.dark .drop-zone {
-    border: 2px dashed var(--border-dark);
-    color: var(--muted-dark);
-  }
-  .drop-zone:hover {
-    background: rgba(37,99,235,0.06);
-  }
-  
-</style>
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      font-weight:900;
+      color:var(--muted);
+    }
+
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+    @media (max-width: 740px){.grid2{grid-template-columns:1fr}}
+
+    textarea, input{
+      width:100%;
+      background:transparent;
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:11px 12px;
+      outline:none;
+      font-weight:750;
+      font-size:14px;
+    }
+    textarea{min-height:88px; resize:vertical}
+    input:focus, textarea:focus{border-color:rgba(37,99,235,.55); box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+
+    .tabs{display:flex; gap:10px; flex-wrap:wrap}
+    .tabBtn{flex:1; justify-content:center}
+
+    .divider{
+      height:1px;
+      background:var(--border);
+      margin:14px 0;
+    }
+
+    .screen{display:none}
+    .screen.active{display:block}
+
+    /* Dashboard layout */
+    .sidebar{
+      width:290px;
+      min-width:290px;
+      padding:14px;
+    }
+    @media (max-width: 920px){
+      .sidebar{width:auto; min-width:unset}
+    }
+    .navBtn{
+      width:100%;
+      justify-content:flex-start;
+      margin-top:10px;
+    }
+    .navBtn.active{
+      background:rgba(37,99,235,.12);
+      border-color:rgba(37,99,235,.25);
+      box-shadow:none;
+    }
+
+    .fileBox{
+      border:1.8px dashed var(--border);
+      border-radius:16px;
+      padding:16px;
+      text-align:center;
+      color:var(--muted);
+      font-weight:900;
+      cursor:pointer;
+      transition:.15s;
+      margin-top:12px;
+    }
+    .fileBox:hover{background:rgba(37,99,235,.06)}
+    .fileBox.drag{background:rgba(37,99,235,.10); border-color:rgba(37,99,235,.45)}
+
+    .fileList{list-style:none; padding:0; margin:12px 0 0}
+    .fileItem{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 0;
+      border-bottom:1px solid var(--border);
+    }
+    .fileName{font-weight:900; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .fileMeta{color:var(--muted); font-weight:800; font-size:12px}
+    .miniBtn{
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:900;
+    }
+
+    .toast{
+      margin-top:10px;
+      font-weight:900;
+      color:var(--muted);
+      min-height:20px;
+      white-space:pre-wrap;
+    }
+
+    .topActions{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+    }
+  </style>
 </head>
+
 <body>
+  <div class="wrap">
 
-<div class="wrap">
+    <!-- AUTH SCREEN -->
+    <div id="authScreen" class="screen active">
+      <div class="card">
+        <div class="cardHeader">
+          <div class="cardTitle">
+            <i data-lucide="shield-check"></i>
+            Alts Hosting
+          </div>
 
-  <!-- AUTH SCREEN -->
-  <div id="authScreen" class="screen active">
-    <div class="login-card">
-      
-      <div class="dashboard-top" style="margin-bottom:14px;">
-        <div class="title">Access Portal</div>
-        <button id="themeToggle">
-          <i data-lucide="moon"></i>
-        </button>
-      </div>
-      
-      <div class="tab">
-        <button id="tabRegBtn" class="btn-primary">Register</button>
-        <button id="tabLoginBtn" class="btn-ghost">Log In</button>
-      </div>
-
-      <div id="regForm">
-        <button id="genTokenBtn" class="btn-primary" style="width:100%;">
-          <i data-lucide="circle-pound-sterling"></i>
-          Generate Token
-        </button>
-        <div id="regStatus" class="status"></div>
-        <textarea id="regTokenShow" readonly style="margin-top:12px; display:none;"></textarea>
-        <div style="margin-top:10px; display:flex; gap:10px;">
-          <button id="copyTokenBtn" class="btn-ghost" disabled>
-            <i data-lucide="clipboard"></i> Copy Token
-          </button>
-          <button id="downloadTokenBtn" class="btn-ghost" disabled>
-            <i data-lucide="download"></i> Download .txt
+          <button id="themeBtnA" class="btn btnGhost" title="Toggle theme">
+            <i id="themeIconA" data-lucide="moon"></i>
+            Theme
           </button>
         </div>
-      </div>
 
-      <div id="loginForm" style="display:none;">
-        <div class="status">Enter token to login:</div>
-        <textarea id="loginTokenInput"></textarea>
-        <button id="loginBtn" class="btn-primary" style="margin-top:12px;">
-          <i data-lucide="log-in"></i> Log In
-        </button>
-        <div id="loginStatus" class="status"></div>
-      </div>
+        <div class="cardBody">
+          <h1 class="bigTitle">Register or Log In</h1>
+          <p class="sub">Register generates a token. Log in by pasting your token (or token.txt).</p>
 
+          <div class="divider"></div>
+
+          <div class="tabs">
+            <button id="tabRegister" class="btn btnBlue tabBtn">
+              <i data-lucide="circle-pound-sterling"></i>
+              Register
+            </button>
+            <button id="tabLogin" class="btn btnGhost tabBtn">
+              <i data-lucide="log-in"></i>
+              Log In
+            </button>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Register -->
+          <div id="registerPane">
+            <div class="grid2">
+              <div class="card" style="box-shadow:none">
+                <div class="cardBody">
+                  <div class="muted">Step 1</div>
+                  <div style="font-weight:950; font-size:18px; margin-top:4px;">Generate your account token</div>
+                  <p class="sub" style="margin-top:6px">Username will be random: swift#####, roblox#####, altsagent#####</p>
+
+                  <button id="btnRegister" class="btn btnBlue" style="width:100%; justify-content:center; margin-top:10px;">
+                    <i data-lucide="circle-pound-sterling"></i>
+                    Generate Token
+                  </button>
+
+                  <div id="regToast" class="toast"></div>
+                </div>
+              </div>
+
+              <div class="card" style="box-shadow:none">
+                <div class="cardBody">
+                  <div class="muted">Your Token</div>
+                  <textarea id="regToken" readonly placeholder="Token will appear here..." style="margin-top:8px;"></textarea>
+
+                  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                    <button id="btnCopyToken" class="btn btnGhost" disabled>
+                      <i data-lucide="clipboard"></i>
+                      Copy
+                    </button>
+                    <button id="btnDownloadToken" class="btn btnGhost" disabled>
+                      <i data-lucide="download"></i>
+                      Download .txt
+                    </button>
+                    <button id="btnGoDashboardFromReg" class="btn btnBlue" disabled>
+                      <i data-lucide="arrow-right"></i>
+                      Go Dashboard
+                    </button>
+                  </div>
+
+                  <div class="toast" id="regTokenToast"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Login -->
+          <div id="loginPane" style="display:none;">
+            <div class="grid2">
+              <div class="card" style="box-shadow:none">
+                <div class="cardBody">
+                  <div class="muted">Paste token</div>
+                  <textarea id="loginToken" placeholder="Paste your token here..."></textarea>
+
+                  <button id="btnLogin" class="btn btnBlue" style="width:100%; justify-content:center; margin-top:10px;">
+                    <i data-lucide="log-in"></i>
+                    Log In
+                  </button>
+
+                  <div id="loginToast" class="toast"></div>
+                </div>
+              </div>
+
+              <div class="card" style="box-shadow:none">
+                <div class="cardBody">
+                  <div class="muted">Tip</div>
+                  <div style="font-weight:950; font-size:18px; margin-top:4px;">Use token.txt</div>
+                  <p class="sub">If you downloaded token.txt, open it and paste the token here.</p>
+                  <div class="divider"></div>
+                  <div class="pill">
+                    <i data-lucide="sparkles"></i>
+                    Auto-login is enabled (saved in browser)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
+
+    <!-- DASHBOARD SCREEN -->
+    <div id="dashScreen" class="screen">
+      <div class="row">
+
+        <!-- Sidebar -->
+        <div class="card sidebar">
+          <div class="cardHeader" style="border-bottom:none; padding-bottom:10px;">
+            <div class="cardTitle">
+              <i data-lucide="layout-dashboard"></i>
+              Dashboard
+            </div>
+          </div>
+          <div class="cardBody" style="padding-top:0;">
+            <div class="pill" style="justify-content:space-between; width:100%;">
+              <span id="whoami">Not logged</span>
+              <span id="planTag">FREE</span>
+            </div>
+
+            <button id="navProject" class="btn btnGhost navBtn active">
+              <i data-lucide="folder"></i>
+              My Project
+            </button>
+
+            <button id="navAccount" class="btn btnGhost navBtn">
+              <i data-lucide="user-cog"></i>
+              Account
+            </button>
+
+            <div class="divider"></div>
+
+            <button id="btnLogout" class="btn btnGhost navBtn">
+              <i data-lucide="log-out"></i>
+              Log out
+            </button>
+          </div>
+        </div>
+
+        <!-- Main -->
+        <div style="flex:1;">
+          <div class="topActions">
+            <div>
+              <h1 class="bigTitle" style="margin:0">Alts Hosting</h1>
+              <div class="sub">One project. Upload files. Delete files. (KV backend)</div>
+            </div>
+
+            <button id="themeBtnB" class="btn btnGhost" title="Toggle theme">
+              <i id="themeIconB" data-lucide="moon"></i>
+              Theme
+            </button>
+          </div>
+
+          <!-- Project Screen -->
+          <div id="projectScreen" class="card">
+            <div class="cardHeader">
+              <div class="cardTitle">
+                <i data-lucide="folder"></i>
+                My Project
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button id="btnRefreshFiles" class="btn btnGhost">
+                  <i data-lucide="refresh-cw"></i>
+                  Refresh
+                </button>
+                <button id="btnOpenCreateProject" class="btn btnBlue">
+                  <i data-lucide="plus"></i>
+                  Create Project
+                </button>
+              </div>
+            </div>
+
+            <div class="cardBody">
+              <!-- Create project modal-ish -->
+              <div id="createProjectBox" class="card" style="box-shadow:none; display:none; margin-bottom:12px;">
+                <div class="cardBody">
+                  <div class="muted">Project Name:</div>
+                  <input id="projectName" placeholder="Project Name" />
+                  <div class="toast">Not wired yet — UI only 😭</div>
+                  <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button id="btnCloseCreateProject" class="btn btnGhost">
+                      <i data-lucide="x"></i> Close
+                    </button>
+                    <button class="btn btnBlue" disabled title="Coming soon">
+                      <i data-lucide="check"></i> Create
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pill" style="justify-content:space-between;">
+                <span><i data-lucide="file-archive"></i> Upload Zip</span>
+                <span class="muted">Max 2MB/file</span>
+              </div>
+
+              <div id="dropZone" class="fileBox">
+                <div style="display:flex; justify-content:center; gap:10px; align-items:center;">
+                  <i data-lucide="upload-cloud"></i>
+                  Drag & drop files here, or click to browse
+                </div>
+              </div>
+              <input id="fileInput" type="file" multiple style="display:none;" />
+
+              <div class="toast" id="uploadToast"></div>
+
+              <ul id="fileList" class="fileList"></ul>
+            </div>
+          </div>
+
+          <!-- Account Screen -->
+          <div id="accountScreen" class="card" style="margin-top:18px; display:none;">
+            <div class="cardHeader">
+              <div class="cardTitle">
+                <i data-lucide="user-cog"></i>
+                Account
+              </div>
+            </div>
+
+            <div class="cardBody">
+              <div class="pill" style="gap:10px;">
+                <i data-lucide="key-round"></i>
+                <span class="muted">Your token is stored locally for auto-login.</span>
+              </div>
+
+              <div class="divider"></div>
+
+              <div style="font-weight:950; font-size:16px;">Delete Account</div>
+              <div class="sub">Type <b>Delete Account</b> to confirm. This calls `/api/delete-account`.</div>
+
+              <input id="deleteText" placeholder="Delete Account" style="margin-top:10px;" />
+
+              <button id="btnDeleteAccount" class="btn btnDanger" style="margin-top:10px;">
+                <i data-lucide="trash-2"></i>
+                Delete Account
+              </button>
+
+              <div class="toast" id="deleteToast"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </div>
-
-  <!-- DASHBOARD SCREEN -->
-  <div id="dashScreen" class="screen">
-    <div class="dashboard-top">
-      <div>
-        <div class="title">My Project Dashboard</div>
-        <div class="status" id="dashWelcome"></div>
-      </div>
-      <button id="themeToggle2">
-        <i data-lucide="moon"></i>
-      </button>
-    </div>
-
-    <!-- File upload + list -->
-    <div>
-      <button class="btn-primary glow" id="uploadBtn">
-        <i data-lucide="upload-cloud"></i>
-        Upload Files
-      </button>
-      <ul class="file-list" id="fileList"></ul>
-
-      <div class="drop-zone" id="dropZone">
-        <i data-lucide="file-plus"></i><br>
-        Drag & drop files here or click to browse
-      </div>
-      <input type="file" id="fileInput" multiple style="display:none;">
-    </div>
-
-    <!-- Delete account -->
-    <div style="margin-top:24px; border-top:1px solid var(--border-light); padding-top:18px;">
-      <div class="status">Danger zone:</div>
-      <input type="text" id="deleteConfirm" placeholder="Type Delete Account to confirm">
-      <button class="btn-danger" id="delAccBtn">
-        <i data-lucide="trash"></i> Delete Account
-      </button>
-      <div id="delStatus" class="status"></div>
-    </div>
-  </div>
-
-</div>
 
 <script>
-  // INIT LUCIDE
-  lucide.replace({width:20, height:20});
+  // ---------- helpers ----------
+  const $ = (id) => document.getElementById(id);
 
-  // THEME
-  const themeToggle = document.querySelectorAll("#themeToggle, #themeToggle2");
-  const bodyEl = document.body;
-  const storedTheme = localStorage.getItem("themeMode");
-  if(storedTheme==="dark") bodyEl.classList.add("dark");
-
-  themeToggle.forEach(btn => {
-    btn.onclick = ()=>{
-      bodyEl.classList.toggle("dark");
-      localStorage.setItem("themeMode", bodyEl.classList.contains("dark") ? "dark":"light");
-      lucide.replace({width:20, height:20});
-    };
-  });
-
-  // AUTH LOGIC
-  const authScreen = document.getElementById("authScreen");
-  const dashScreen = document.getElementById("dashScreen");
-  const dashWelcome = document.getElementById("dashWelcome");
-
-  const tabRegBtn = document.getElementById("tabRegBtn");
-  const tabLoginBtn = document.getElementById("tabLoginBtn");
-  const regForm = document.getElementById("regForm");
-  const loginForm = document.getElementById("loginForm");
-
-  const genTokenBtn = document.getElementById("genTokenBtn");
-  const regStatus = document.getElementById("regStatus");
-  const regTokenShow = document.getElementById("regTokenShow");
-  const copyTokenBtn = document.getElementById("copyTokenBtn");
-  const downloadTokenBtn = document.getElementById("downloadTokenBtn");
-
-  const loginTokenInput = document.getElementById("loginTokenInput");
-  const loginBtn = document.getElementById("loginBtn");
-  const loginStatus = document.getElementById("loginStatus");
-
-  let savedToken = localStorage.getItem("userToken");
-  let savedUsername = localStorage.getItem("username");
-
-  function makeUsername(){
-    const prefixes=["swift","roblox","altsagent"];
-    const prefix=prefixes[Math.floor(Math.random()*prefixes.length)];
-    const num=Math.floor(10000+Math.random()*90000);
-    return `${prefix}${num}`;
+  function formatBytes(n){
+    if (!Number.isFinite(n)) return "";
+    if (n < 1024) return n + " B";
+    const kb = n / 1024;
+    if (kb < 1024) return kb.toFixed(1) + " KB";
+    return (kb/1024).toFixed(1) + " MB";
   }
 
-  function showScreen(s){
+  function setToast(el, msg){
+    el.textContent = msg || "";
+  }
+
+  // ---------- theme ----------
+  function applyThemeFromStorage(){
+    const t = localStorage.getItem("themeMode") || "light";
+    document.body.classList.toggle("dark", t === "dark");
+
+    // swap icon
+    const isDark = document.body.classList.contains("dark");
+    const iconName = isDark ? "sun" : "moon";
+    $("themeIconA")?.setAttribute("data-lucide", iconName);
+    $("themeIconB")?.setAttribute("data-lucide", iconName);
+
+    lucide.replace();
+  }
+
+  function toggleTheme(){
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem("themeMode", isDark ? "light" : "dark");
+    applyThemeFromStorage();
+  }
+
+  // ---------- auth ----------
+  const authScreen = $("authScreen");
+  const dashScreen = $("dashScreen");
+
+  function showScreen(which){
     authScreen.classList.remove("active");
     dashScreen.classList.remove("active");
-    document.getElementById(s).classList.add("active");
+    $(which).classList.add("active");
+    lucide.replace();
   }
 
-  // AUTO LOGIN IF TOKEN
-  if(savedToken){
-    showScreen("dashScreen");
-    dashWelcome.textContent = `Logged in as ${savedUsername}`;
+  function makeUsername(){
+    const prefixes = ["swift","roblox","altsagent"];
+    const p = prefixes[Math.floor(Math.random()*prefixes.length)];
+    const n = Math.floor(10000 + Math.random()*90000);
+    return `${p}${n}`;
   }
 
-  tabRegBtn.onclick = ()=>{
-    regForm.style.display="block";
-    loginForm.style.display="none";
-    tabRegBtn.classList.add("btn-primary");
-    tabLoginBtn.classList.remove("btn-primary");
-  };
-  tabLoginBtn.onclick = ()=>{
-    regForm.style.display="none";
-    loginForm.style.display="block";
-    tabLoginBtn.classList.add("btn-primary");
-    tabRegBtn.classList.remove("btn-primary");
-  };
+  function getToken(){ return localStorage.getItem("userToken") || ""; }
+  function getUsername(){ return localStorage.getItem("username") || ""; }
 
-  genTokenBtn.onclick = async ()=>{
-    const username=makeUsername();
-    regStatus.textContent="Getting token...";
-    try{
-      // call backend
-      const res=await fetch("/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username})});
-      const data=await res.json();
-      if(!res.ok) throw new Error(data.error||"Register failed");
-      savedToken=data.token;
-      savedUsername=data.username;
-      localStorage.setItem("userToken", savedToken);
-      localStorage.setItem("username", savedUsername);
+  function setSession(token, username){
+    localStorage.setItem("userToken", token);
+    localStorage.setItem("username", username);
+  }
 
-      regTokenShow.value=data.token;
-      regTokenShow.style.display="block";
-      copyTokenBtn.disabled=false;
-      downloadTokenBtn.disabled=false;
-      regStatus.textContent="Token generated!";
-      dashWelcome.textContent=`Logged in as ${savedUsername}`;
+  function clearSession(){
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("username");
+  }
 
-    }catch(e){
-      regStatus.textContent=`Error: ${e.message}`;
+  // ---------- API ----------
+  async function apiJson(path, options){
+    const res = await fetch(path, options);
+    let data = null;
+    try { data = await res.json(); } catch {}
+    if (!res.ok){
+      const msg = (data && (data.error || data.message)) ? (data.error || data.message) : `HTTP ${res.status}`;
+      throw new Error(msg);
     }
-  };
+    return data;
+  }
 
-  copyTokenBtn.onclick = ()=>navigator.clipboard.writeText(regTokenShow.value);
-  downloadTokenBtn.onclick = ()=>{
-    const blob=new Blob([regTokenShow.value],{type:"text/plain"});
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="token.txt";
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
+  async function apiRegister(){
+    const username = makeUsername();
+    return apiJson("/api/register", {
+      method:"POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ username })
+    });
+  }
 
-  loginBtn.onclick = async ()=>{
-    const token=loginTokenInput.value.trim();
-    loginStatus.textContent="Checking...";
+  async function apiLogin(token){
+    return apiJson("/api/login", {
+      method:"POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ token })
+    });
+  }
+
+  async function apiListFiles(){
+    const token = getToken();
+    return apiJson("/api/files-list", {
+      method:"GET",
+      headers: { "x-auth-token": token }
+    });
+  }
+
+  async function apiUploadFiles(fileList){
+    const token = getToken();
+    const fd = new FormData();
+    for (const f of fileList) fd.append("files", f);
+
+    const res = await fetch("/api/upload-file", {
+      method:"POST",
+      headers: { "x-auth-token": token },
+      body: fd
+    });
+
+    let data = null;
+    try { data = await res.json(); } catch {}
+    if (!res.ok){
+      const msg = (data && (data.error || data.message)) ? (data.error || data.message) : `HTTP ${res.status}`;
+      throw new Error(msg);
+    }
+    return data;
+  }
+
+  async function apiDeleteFile(filename){
+    const token = getToken();
+    return apiJson("/api/delete-file", {
+      method:"DELETE",
+      headers: {
+        "Content-Type":"application/json",
+        "x-auth-token": token
+      },
+      body: JSON.stringify({ filename })
+    });
+  }
+
+  async function apiDeleteAccount(){
+    const token = getToken();
+    return apiJson("/api/delete-account", {
+      method:"DELETE",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ token })
+    });
+  }
+
+  // ---------- UI: auth tabs ----------
+  function setActiveTab(tab){
+    const reg = $("tabRegister");
+    const log = $("tabLogin");
+    const regPane = $("registerPane");
+    const logPane = $("loginPane");
+
+    if (tab === "register"){
+      reg.classList.remove("btnGhost"); reg.classList.add("btnBlue");
+      log.classList.remove("btnBlue"); log.classList.add("btnGhost");
+      regPane.style.display = "";
+      logPane.style.display = "none";
+    } else {
+      log.classList.remove("btnGhost"); log.classList.add("btnBlue");
+      reg.classList.remove("btnBlue"); reg.classList.add("btnGhost");
+      regPane.style.display = "none";
+      logPane.style.display = "";
+    }
+  }
+
+  // ---------- UI: dashboard nav ----------
+  function showDashTab(which){
+    const proj = $("projectScreen");
+    const acc = $("accountScreen");
+    const navP = $("navProject");
+    const navA = $("navAccount");
+
+    if (which === "project"){
+      proj.style.display = "";
+      acc.style.display = "none";
+      navP.classList.add("active");
+      navA.classList.remove("active");
+    } else {
+      proj.style.display = "none";
+      acc.style.display = "";
+      navA.classList.add("active");
+      navP.classList.remove("active");
+    }
+  }
+
+  // ---------- UI: files ----------
+  function guessIcon(name){
+    const lower = (name || "").toLowerCase();
+    if (lower.endsWith(".py")) return "pyramid";
+    if (lower.endsWith(".zip")) return "file-archive";
+    if (lower.endsWith(".txt")) return "file-text";
+    if (lower.endsWith(".js")) return "file-code";
+    if (lower.endsWith(".html")) return "file-code-2";
+    if (lower.endsWith(".css")) return "palette";
+    return "file";
+  }
+
+  async function refreshFilesUI(){
+    const listEl = $("fileList");
+    setToast($("uploadToast"), "Loading files...");
+    listEl.innerHTML = "";
+
     try{
-      const res=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token})});
-      const data=await res.json();
-      if(!res.ok) throw new Error(data.error||"Login failed");
-      savedToken=token;
-      savedUsername=data.username;
-      localStorage.setItem("userToken", savedToken);
-      localStorage.setItem("username", savedUsername);
-      dashWelcome.textContent=`Logged in as ${savedUsername}`;
+      const data = await apiListFiles();
+      const files = data.files || [];
+
+      if (files.length === 0){
+        setToast($("uploadToast"), "No files yet. Upload something 👇");
+        return;
+      }
+
+      setToast($("uploadToast"), "");
+
+      for (const f of files){
+        // files can be strings OR objects depending on backend; normalize:
+        const filename = typeof f === "string" ? f : (f.name || "");
+        const size = typeof f === "object" ? f.size : undefined;
+
+        const li = document.createElement("li");
+        li.className = "fileItem";
+
+        const ic = document.createElement("i");
+        ic.setAttribute("data-lucide", guessIcon(filename));
+        li.appendChild(ic);
+
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "fileName";
+        nameDiv.textContent = filename;
+        li.appendChild(nameDiv);
+
+        const metaDiv = document.createElement("div");
+        metaDiv.className = "fileMeta";
+        metaDiv.textContent = size ? formatBytes(size) : "";
+        li.appendChild(metaDiv);
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn btnGhost miniBtn";
+        delBtn.innerHTML = `<i data-lucide="trash-2"></i> Delete`;
+        delBtn.onclick = async () => {
+          if (!confirm(`Delete "${filename}"?`)) return;
+          try{
+            setToast($("uploadToast"), `Deleting ${filename}...`);
+            await apiDeleteFile(filename);
+            setToast($("uploadToast"), `Deleted: ${filename}`);
+            await refreshFilesUI();
+          }catch(e){
+            setToast($("uploadToast"), `Delete failed: ${e.message}`);
+          }
+        };
+
+        li.appendChild(delBtn);
+        listEl.appendChild(li);
+      }
+
+      lucide.replace();
+    }catch(e){
+      setToast($("uploadToast"), `List failed: ${e.message}\n(Usually KV binding name is wrong or route missing)`);
+    }
+  }
+
+  // ---------- boot ----------
+  function fillWhoAmI(){
+    const u = getUsername();
+    $("whoami").textContent = u ? u : "Unknown";
+  }
+
+  async function doAutoLoginIfToken(){
+    const token = getToken();
+    if (!token) return;
+
+    // verify token with /api/login so we KNOW backend works
+    try{
+      const data = await apiLogin(token);
+      setSession(token, data.username || getUsername() || "user");
       showScreen("dashScreen");
+      fillWhoAmI();
+      showDashTab("project");
+      await refreshFilesUI();
     }catch(e){
-      loginStatus.textContent=`Error: ${e.message}`;
+      // token invalid, boot to auth
+      clearSession();
+      showScreen("authScreen");
+      setToast($("loginToast"), `Saved token invalid. Please login again.\n${e.message}`);
     }
-  };
-
-  // FILE STORAGE (localStorage)
-  const fileListUI=document.getElementById("fileList");
-  const dropZone=document.getElementById("dropZone");
-  const fileInput=document.getElementById("fileInput");
-  let storedFiles=JSON.parse(localStorage.getItem("files"))||[];
-
-  function refreshFiles(){
-    fileListUI.innerHTML="";
-    storedFiles.forEach(f=>{
-      const li=document.createElement("li");
-      const icon=document.createElement("i");
-      icon.setAttribute("data-lucide", f.name.endsWith(".py")?"pyramid":"file-archive");
-      li.appendChild(icon);
-      li.appendChild(document.createTextNode(f.name));
-      fileListUI.appendChild(li);
-    });
-    lucide.replace({width:20,height:20});
   }
-  refreshFiles();
 
-  fileInput.onchange=(e)=>{
-    const files=[...e.target.files];
-    files.forEach(f=>{
-      storedFiles.push({name:f.name});
+  // ---------- events ----------
+  window.addEventListener("DOMContentLoaded", async () => {
+    applyThemeFromStorage();
+    lucide.replace();
+
+    $("themeBtnA").onclick = toggleTheme;
+    $("themeBtnB").onclick = toggleTheme;
+
+    $("tabRegister").onclick = () => setActiveTab("register");
+    $("tabLogin").onclick = () => setActiveTab("login");
+
+    // Register
+    $("btnRegister").onclick = async () => {
+      setToast($("regToast"), "Generating token...");
+      setToast($("regTokenToast"), "");
+      $("regToken").value = "";
+      $("btnCopyToken").disabled = true;
+      $("btnDownloadToken").disabled = true;
+      $("btnGoDashboardFromReg").disabled = true;
+
+      try{
+        const data = await apiRegister();
+        setSession(data.token, data.username);
+        $("regToken").value = data.token;
+        setToast($("regToast"), `Done! Username: ${data.username}`);
+
+        $("btnCopyToken").disabled = false;
+        $("btnDownloadToken").disabled = false;
+        $("btnGoDashboardFromReg").disabled = false;
+
+        fillWhoAmI();
+      }catch(e){
+        setToast($("regToast"), `Register failed: ${e.message}`);
+      }
+    };
+
+    $("btnCopyToken").onclick = async () => {
+      const t = $("regToken").value.trim();
+      if (!t) return;
+      await navigator.clipboard.writeText(t);
+      setToast($("regTokenToast"), "Copied ✅");
+    };
+
+    $("btnDownloadToken").onclick = () => {
+      const t = $("regToken").value.trim();
+      if (!t) return;
+      const blob = new Blob([t], { type:"text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "token.txt";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      setToast($("regTokenToast"), "Downloaded token.txt ✅");
+    };
+
+    $("btnGoDashboardFromReg").onclick = async () => {
+      showScreen("dashScreen");
+      fillWhoAmI();
+      showDashTab("project");
+      await refreshFilesUI();
+    };
+
+    // Login
+    $("btnLogin").onclick = async () => {
+      setToast($("loginToast"), "Logging in...");
+      const token = $("loginToken").value.trim();
+      if (!token){
+        setToast($("loginToast"), "Paste token first.");
+        return;
+      }
+      try{
+        const data = await apiLogin(token);
+        setSession(token, data.username);
+        setToast($("loginToast"), "Login OK ✅");
+        showScreen("dashScreen");
+        fillWhoAmI();
+        showDashTab("project");
+        await refreshFilesUI();
+      }catch(e){
+        setToast($("loginToast"), `Login failed: ${e.message}`);
+      }
+    };
+
+    // Dashboard nav
+    $("navProject").onclick = () => showDashTab("project");
+    $("navAccount").onclick = () => showDashTab("account");
+
+    $("btnLogout").onclick = () => {
+      clearSession();
+      showScreen("authScreen");
+      setActiveTab("login");
+      setToast($("loginToast"), "Logged out.");
+    };
+
+    // Create project UI (fake)
+    $("btnOpenCreateProject").onclick = () => {
+      $("createProjectBox").style.display = "";
+      lucide.replace();
+    };
+    $("btnCloseCreateProject").onclick = () => {
+      $("createProjectBox").style.display = "none";
+    };
+
+    // Files
+    $("btnRefreshFiles").onclick = refreshFilesUI;
+
+    const drop = $("dropZone");
+    const input = $("fileInput");
+
+    drop.onclick = () => input.click();
+
+    drop.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      drop.classList.add("drag");
     });
-    localStorage.setItem("files", JSON.stringify(storedFiles));
-    refreshFiles();
-  };
+    drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+    drop.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      drop.classList.remove("drag");
+      const files = [...e.dataTransfer.files];
+      await handleUpload(files);
+    });
 
-  dropZone.onclick=()=>fileInput.click();
-  dropZone.ondragover=(ev)=>{ev.preventDefault();dropZone.classList.add("hover");};
-  dropZone.ondragleave=()=>dropZone.classList.remove("hover");
-  dropZone.ondrop=(ev)=>{
-    ev.preventDefault();dropZone.classList.remove("hover");
-    const files=[...ev.dataTransfer.files];
-    files.forEach(f=>{storedFiles.push({name:f.name});});
-    localStorage.setItem("files",JSON.stringify(storedFiles));
-    refreshFiles();
-  };
+    input.addEventListener("change", async () => {
+      const files = [...input.files];
+      input.value = "";
+      await handleUpload(files);
+    });
 
-  // DELETE ACCOUNT
-  const delAccBtn=document.getElementById("delAccBtn");
-  const deleteConfirm = document.getElementById("deleteConfirm");
-  const delStatus=document.getElementById("delStatus");
+    async function handleUpload(files){
+      if (!files || files.length === 0) return;
+      // client-side size guard too (2MB)
+      const tooBig = files.find(f => f.size > 2*1024*1024);
+      if (tooBig){
+        setToast($("uploadToast"), `Too big: ${tooBig.name} (2MB max)`);
+        return;
+      }
 
-  delAccBtn.onclick=()=>{
-    if(deleteConfirm.value.trim()==="Delete Account"){
-      localStorage.clear();
-      location.reload();
-    } else delStatus.textContent="Type exactly 'Delete Account' to confirm";
-  };
+      try{
+        setToast($("uploadToast"), "Uploading...");
+        const data = await apiUploadFiles(files);
+        const count = (data.uploaded || []).length;
+        setToast($("uploadToast"), `Uploaded ${count} file(s) ✅`);
+        await refreshFilesUI();
+      }catch(e){
+        setToast($("uploadToast"), `Upload failed: ${e.message}`);
+      }
+    }
 
+    // Delete account
+    $("btnDeleteAccount").onclick = async () => {
+      setToast($("deleteToast"), "");
+      if ($("deleteText").value.trim() !== "Delete Account"){
+        setToast($("deleteToast"), "Type exactly: Delete Account");
+        return;
+      }
+      if (!confirm("Delete your account and ALL files?")) return;
+
+      try{
+        setToast($("deleteToast"), "Deleting...");
+        await apiDeleteAccount();
+        setToast($("deleteToast"), "Deleted ✅");
+        localStorage.clear();
+        showScreen("authScreen");
+        setActiveTab("register");
+      }catch(e){
+        setToast($("deleteToast"), `Delete failed: ${e.message}`);
+      }
+    };
+
+    // Auto-login verify
+    await doAutoLoginIfToken();
+  });
+</script>
+
+<script>
+  // first render icons
+  lucide.replace();
 </script>
 
 </body>
