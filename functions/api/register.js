@@ -1,37 +1,21 @@
 export async function onRequestPost({ request, env }) {
   try {
-    if (!env.TOKENS) {
-      return jsonError("KV binding TOKENS is missing. Add it in Pages → Settings → Bindings.", 500);
-    }
+    if (!env.TOKENS) return jerr("KV binding TOKENS missing.", 500);
 
     const body = await request.json().catch(() => null);
     const username = (body?.username || "").trim();
+    if (!username || username.length < 3 || username.length > 32) return jerr("Bad username.", 400);
 
-    if (!username || username.length < 3 || username.length > 32) {
-      return jsonError("username must be 3–32 chars.", 400);
-    }
-
-    // generate token
     const token = crypto.randomUUID().replace(/-/g, "");
 
-    // store token -> username
-    // key: <token>
-    // value: <username>
     await env.TOKENS.put(token, username);
+    await env.TOKENS.put(`user/${username}`, token); // username -> token
 
-    return json({ username, token });
-  } catch (err) {
-    return jsonError(err?.message || "Register failed.", 500);
+    return j({ username, token });
+  } catch (e) {
+    return jerr(e?.message || "Register failed.", 500);
   }
 }
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "content-type": "application/json" },
-  });
-}
-
-function jsonError(message, status = 400) {
-  return json({ error: message }, status);
-}
+const j = (d, s=200) => new Response(JSON.stringify(d), { status:s, headers:{ "content-type":"application/json" }});
+const jerr = (m, s=400) => j({ error:m }, s);
