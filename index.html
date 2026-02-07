@@ -1,83 +1,415 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Token Login</title>
+  <title>Alts Hosting</title>
   <style>
-    body { font-family: system-ui, Arial; background:#0b0f1a; color:#e7ecff; margin:0; }
-    .wrap { max-width: 720px; margin: 48px auto; padding: 24px; }
-    .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 18px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
-    h1 { margin: 0 0 8px; font-size: 28px; }
-    p { margin: 0 0 16px; opacity: 0.85; }
-
-    .topBtns { display:flex; gap:14px; align-items:center; margin: 18px 0 8px; }
-    .divider { width: 1px; height: 26px; background: rgba(255,255,255,0.22); }
-
-    button {
-      cursor:pointer; border:none; border-radius: 14px; padding: 12px 16px;
-      background: rgba(120,90,255,0.25); color:#e7ecff; font-weight:700;
-      border: 1px solid rgba(120,90,255,0.45);
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;        /* slate-900 */
+      --muted:#64748b;       /* slate-500 */
+      --card:#ffffff;
+      --border:#e2e8f0;      /* slate-200 */
+      --shadow: 0 10px 30px rgba(2,6,23,.08);
+      --primary:#2563eb;     /* blue-600 */
+      --primary2:#1d4ed8;    /* blue-700 */
+      --success:#16a34a;     /* green-600 */
+      --danger:#dc2626;      /* red-600 */
+      --soft:#f8fafc;        /* slate-50 */
     }
-    button:hover { transform: translateY(-1px); }
-    button:active { transform: translateY(0px); }
 
-    .section { display:none; margin-top: 16px; }
-    .section.active { display:block; }
-
-    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    input, textarea {
-      width: 100%; max-width: 560px;
-      background: rgba(255,255,255,0.06); color:#e7ecff;
-      border: 1px solid rgba(255,255,255,0.14); border-radius: 14px;
-      padding: 12px 12px; outline:none;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:var(--bg);
+      color:var(--text);
     }
-    textarea { min-height: 92px; resize: vertical; }
 
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .pill { display:inline-block; padding: 6px 10px; border-radius:999px;
-            background: rgba(0,255,170,0.12); border: 1px solid rgba(0,255,170,0.35); }
-    .ok { color:#52ffb8; }
-    .bad { color:#ff6b6b; }
-    .small { font-size: 13px; opacity: 0.8; }
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    /* top nav */
+    .nav{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      padding: 16px 6px;
+      margin-bottom: 18px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .dot{
+      width:12px;height:12px;border-radius:999px;background:var(--primary);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+    }
+    .rightHint{
+      color:var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* card */
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardHead{
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff 0%, var(--soft) 100%);
+    }
+    .title{
+      margin:0 0 6px;
+      font-size: 22px;
+      font-weight: 850;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .cardBody{
+      padding: 18px 22px 22px;
+    }
+
+    /* tabs */
+    .tabs{
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--border);
+      background:#fff;
+    }
+    .tabBtn{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor:pointer;
+      transition:.12s;
+    }
+    .tabBtn:hover{ transform: translateY(-1px); }
+    .tabBtn.active{
+      border-color: rgba(37,99,235,.35);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.10);
+    }
+    .divider{
+      width:1px;height:26px;background:var(--border);
+      margin: 0 2px;
+    }
+
+    /* forms */
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+    .label{
+      font-size: 13px;
+      font-weight: 850;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    textarea, input{
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-size: 14px;
+      font-weight: 650;
+      outline:none;
+      background:#fff;
+    }
+    textarea{ min-height: 92px; resize: vertical; }
+    textarea:focus, input:focus{
+      border-color: rgba(37,99,235,.45);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.10);
+    }
+
+    /* buttons */
+    button{
+      border:none;
+      cursor:pointer;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-weight: 900;
+      transition:.12s;
+      font-size: 14px;
+    }
+    button:active{ transform: translateY(1px); }
+    .btnPrimary{
+      background: var(--primary);
+      color: #fff;
+    }
+    .btnPrimary:hover{ background: var(--primary2); }
+    .btnGhost{
+      background:#fff;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btnGhost:hover{ transform: translateY(-1px); }
+    .btnDanger{
+      background: #fff;
+      border: 1px solid rgba(220,38,38,.35);
+      color: var(--danger);
+    }
+    .btnBig{
+      width: 100%;
+      padding: 16px 16px;
+      font-size: 16px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(37,99,235,.16);
+    }
+
+    /* status / token box */
+    .status{
+      font-weight: 800;
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .ok{ color: var(--success); }
+    .bad{ color: var(--danger); }
+
+    .pill{
+      display:inline-block;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(37,99,235,.08);
+      border: 1px solid rgba(37,99,235,.22);
+      color: var(--text);
+    }
+
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 700;
+    }
+    .tokenBox{
+      margin-top: 10px;
+      border:1px solid var(--border);
+      background: var(--soft);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    /* screens */
+    .screen{ display:none; }
+    .screen.active{ display:block; }
+
+    /* dashboard */
+    .dashTop{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .dashTitle{
+      margin:0;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .dashSub{
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .emptyState{
+      border: 1px dashed var(--border);
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px;
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    /* modal */
+    .modalBackdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(2,6,23,.38);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+    }
+    .modalBackdrop.open{ display:flex; }
+    .modal{
+      width: min(520px, 100%);
+      background:#fff;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 50px rgba(2,6,23,.25);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .modalBody{ padding: 16px 18px 18px; }
+    .xBtn{
+      width: 36px; height: 36px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background:#fff;
+      font-weight: 900;
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
+    <div class="nav">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>Alts Hosting</span>
+      </div>
+      <div class="rightHint">Token-based access • Simple & secure</div>
+    </div>
+
     <div class="card">
-      <h1>Token Login</h1>
-      <p>Register to get a token. Then log in using that token.</p>
 
-      <div class="topBtns">
-        <button id="btnRegister">Register</button>
-        <div class="divider"></div>
-        <button id="btnLogin">Log In</button>
+      <!-- AUTH VIEW -->
+      <div id="authView" class="screen active">
+        <div class="cardHead">
+          <h1 class="title">Access Portal</h1>
+          <p class="sub">Register to generate a token. Then log in using that token to access your dashboard.</p>
+        </div>
+
+        <div class="tabs">
+          <button id="tabRegister" class="tabBtn active">Register</button>
+          <div class="divider"></div>
+          <button id="tabLogin" class="tabBtn">Log In</button>
+        </div>
+
+        <div class="cardBody">
+          <!-- Register -->
+          <div id="registerScreen" class="screen active">
+            <div class="grid">
+              <div>
+                <button id="btnRegister" class="btnPrimary btnBig">Generate Token</button>
+                <div id="regStatus" class="status"></div>
+              </div>
+
+              <div id="regResult" style="display:none;">
+                <div class="row" style="justify-content:space-between;">
+                  <span class="pill" id="userPill">username: ???</span>
+                  <div class="row">
+                    <button id="btnCopy" class="btnGhost" disabled>Copy Token</button>
+                    <button id="btnDownload" class="btnGhost" disabled>Download .txt</button>
+                  </div>
+                </div>
+
+                <div class="tokenBox">
+                  <div class="label">Your token</div>
+                  <div id="tokenText" class="mono" style="word-break: break-all;"></div>
+                </div>
+
+                <div class="emptyState" style="margin-top:12px;">
+                  Save this token. If you lose it, you can’t log in again.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Login -->
+          <div id="loginScreen" class="screen">
+            <div class="grid">
+              <div>
+                <div class="label">Paste your token</div>
+                <textarea id="loginToken" class="mono" placeholder="Paste token here..."></textarea>
+              </div>
+
+              <div class="row">
+                <button id="btnLogin" class="btnPrimary">Log In</button>
+              </div>
+
+              <div id="loginStatus" class="status"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- REGISTER -->
-      <div id="registerSection" class="section">
-        <p class="small">Click register and you’ll get a random username + token.</p>
-        <div class="row">
-          <button id="doRegister">Generate Token</button>
-          <button id="copyToken" disabled>Copy Token</button>
-          <button id="downloadToken" disabled>Download .txt</button>
+      <!-- DASHBOARD VIEW -->
+      <div id="dashboardView" class="screen">
+        <div class="cardHead">
+          <h1 class="title">Dashboard</h1>
+          <p class="sub">Welcome back. Project features are coming soon.</p>
         </div>
 
-        <div style="margin-top:14px;">
-          <div id="regStatus"></div>
-          <div id="regOut" style="margin-top:10px;"></div>
+        <div class="cardBody">
+          <div class="dashTop">
+            <div>
+              <p class="dashTitle" id="dashHello">Hello</p>
+              <p class="dashSub">You are logged in using a token.</p>
+            </div>
+
+            <div class="row">
+              <button id="btnCreateProject" class="btnPrimary">Create Project</button>
+              <button id="btnLogout" class="btnDanger">Log out</button>
+            </div>
+          </div>
+
+          <div class="emptyState">
+            <b>Projects</b><br/>
+            No projects yet. Click <b>Create Project</b> to open the form.
+          </div>
         </div>
       </div>
 
-      <!-- LOGIN -->
-      <div id="loginSection" class="section">
-        <p class="small">Paste your token below (from the .txt or copied).</p>
-        <textarea id="tokenInput" class="mono" placeholder="Paste token here..."></textarea>
-        <div class="row" style="margin-top:10px;">
-          <button id="doLogin">Log In</button>
+    </div>
+  </div>
+
+  <!-- Create Project Modal -->
+  <div id="modalBackdrop" class="modalBackdrop">
+    <div class="modal">
+      <div class="modalHead">
+        <span>Create Project</span>
+        <button id="btnCloseModal" class="xBtn">✕</button>
+      </div>
+      <div class="modalBody">
+        <div class="label">Project Name:</div>
+        <input id="projectName" placeholder="e.g. My First Project" />
+        <div class="row" style="margin-top:12px; justify-content:flex-end;">
+          <button id="btnCancelModal" class="btnGhost">Cancel</button>
+          <button id="btnSaveProject" class="btnPrimary">Create</button>
         </div>
-        <div style="margin-top:12px;" id="loginStatus"></div>
+        <div class="status" style="margin-top:10px; color:var(--muted);">
+          (Dashboard project saving is not enabled yet — UI only)
+        </div>
       </div>
     </div>
   </div>
@@ -85,65 +417,130 @@
 <script>
   const $ = (id) => document.getElementById(id);
 
-  const registerSection = $("registerSection");
-  const loginSection = $("loginSection");
+  // Views
+  const authView = $("authView");
+  const dashboardView = $("dashboardView");
+  const registerScreen = $("registerScreen");
+  const loginScreen = $("loginScreen");
 
+  // Tabs
+  const tabRegister = $("tabRegister");
+  const tabLogin = $("tabLogin");
+
+  // Register elements
+  const btnRegister = $("btnRegister");
   const regStatus = $("regStatus");
-  const regOut = $("regOut");
+  const regResult = $("regResult");
+  const userPill = $("userPill");
+  const tokenText = $("tokenText");
+  const btnCopy = $("btnCopy");
+  const btnDownload = $("btnDownload");
+
+  // Login elements
+  const loginToken = $("loginToken");
+  const btnLogin = $("btnLogin");
   const loginStatus = $("loginStatus");
+
+  // Dashboard
+  const dashHello = $("dashHello");
+  const btnLogout = $("btnLogout");
+  const btnCreateProject = $("btnCreateProject");
+
+  // Modal
+  const modalBackdrop = $("modalBackdrop");
+  const btnCloseModal = $("btnCloseModal");
+  const btnCancelModal = $("btnCancelModal");
+  const btnSaveProject = $("btnSaveProject");
+  const projectName = $("projectName");
 
   let lastToken = null;
 
-  function show(section) {
-    registerSection.classList.remove("active");
-    loginSection.classList.remove("active");
-    section.classList.add("active");
+  // Username pattern: swift12345 / roblox12345 / altsagent12345
+  function makeUsername() {
+    const prefixes = ["swift", "roblox", "altsagent"];
+    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const num = Math.floor(10000 + Math.random() * 90000); // 5-digit
+    return `${prefix}${num}`;
   }
 
-  $("btnRegister").onclick = () => show(registerSection);
-  $("btnLogin").onclick = () => show(loginSection);
+  function showTab(tab) {
+    tabRegister.classList.remove("active");
+    tabLogin.classList.remove("active");
+    registerScreen.classList.remove("active");
+    loginScreen.classList.remove("active");
 
-  // default view
-  show(registerSection);
+    if (tab === "register") {
+      tabRegister.classList.add("active");
+      registerScreen.classList.add("active");
+    } else {
+      tabLogin.classList.add("active");
+      loginScreen.classList.add("active");
+    }
+  }
 
-  $("doRegister").onclick = async () => {
-    regStatus.innerHTML = "Registering...";
-    regOut.innerHTML = "";
+  function showDashboard(username) {
+    authView.classList.remove("active");
+    dashboardView.classList.add("active");
+    dashHello.textContent = `Hello, ${username}`;
+  }
+
+  function showAuth() {
+    dashboardView.classList.remove("active");
+    authView.classList.add("active");
+    showTab("register");
+  }
+
+  tabRegister.onclick = () => showTab("register");
+  tabLogin.onclick = () => showTab("login");
+
+  // ---- Register ----
+  btnRegister.onclick = async () => {
+    regStatus.innerHTML = "Generating token...";
+    regStatus.className = "status";
+    regResult.style.display = "none";
+    btnCopy.disabled = true;
+    btnDownload.disabled = true;
     lastToken = null;
-    $("copyToken").disabled = true;
-    $("downloadToken").disabled = true;
+
+    const username = makeUsername();
 
     try {
-      const res = await fetch("/api/register", { method: "POST" });
+      // send username so server stores it with token
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username })
+      });
       const data = await res.json();
 
       if (!res.ok) throw new Error(data?.error || "Register failed");
 
       lastToken = data.token;
 
-      regStatus.innerHTML = `<span class="ok">✅ Registered!</span> <span class="pill">username: <b>${data.username}</b></span>`;
-      regOut.innerHTML = `
-        <div class="small" style="margin-top:8px;">Your token (save it):</div>
-        <div class="mono" style="margin-top:6px; padding:12px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06);">
-          ${data.token}
-        </div>
-      `;
+      userPill.textContent = `username: ${data.username}`;
+      tokenText.textContent = data.token;
 
-      $("copyToken").disabled = false;
-      $("downloadToken").disabled = false;
+      regResult.style.display = "block";
+      regStatus.innerHTML = "✅ Token created. Save it somewhere safe.";
+      regStatus.className = "status ok";
+
+      btnCopy.disabled = false;
+      btnDownload.disabled = false;
 
     } catch (e) {
-      regStatus.innerHTML = `<span class="bad">❌ ${e.message}</span>`;
+      regStatus.innerHTML = `❌ ${e.message}`;
+      regStatus.className = "status bad";
     }
   };
 
-  $("copyToken").onclick = async () => {
+  btnCopy.onclick = async () => {
     if (!lastToken) return;
     await navigator.clipboard.writeText(lastToken);
-    regStatus.innerHTML = `<span class="ok">✅ Copied token to clipboard</span>`;
+    regStatus.innerHTML = "✅ Copied token to clipboard.";
+    regStatus.className = "status ok";
   };
 
-  $("downloadToken").onclick = () => {
+  btnDownload.onclick = () => {
     if (!lastToken) return;
     const blob = new Blob([lastToken], { type: "text/plain" });
     const a = document.createElement("a");
@@ -153,9 +550,11 @@
     URL.revokeObjectURL(a.href);
   };
 
-  $("doLogin").onclick = async () => {
-    const token = $("tokenInput").value.trim();
+  // ---- Login ----
+  btnLogin.onclick = async () => {
+    const token = loginToken.value.trim();
     loginStatus.innerHTML = "Checking token...";
+    loginStatus.className = "status";
 
     try {
       const res = await fetch("/api/login", {
@@ -163,15 +562,53 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token })
       });
-      const data = await res.json();
 
+      const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Login failed");
 
-      loginStatus.innerHTML = `<span class="ok">✅ Logged in as <b>${data.username}</b></span>`;
+      loginStatus.innerHTML = "✅ Logged in.";
+      loginStatus.className = "status ok";
+
+      showDashboard(data.username);
+
     } catch (e) {
-      loginStatus.innerHTML = `<span class="bad">❌ ${e.message}</span>`;
+      loginStatus.innerHTML = `❌ ${e.message}`;
+      loginStatus.className = "status bad";
     }
   };
+
+  // ---- Dashboard actions ----
+  btnLogout.onclick = () => {
+    // no real session yet, just UI
+    loginToken.value = "";
+    showAuth();
+  };
+
+  function openModal() {
+    modalBackdrop.classList.add("open");
+    projectName.value = "";
+    setTimeout(() => projectName.focus(), 10);
+  }
+  function closeModal() {
+    modalBackdrop.classList.remove("open");
+  }
+
+  btnCreateProject.onclick = openModal;
+  btnCloseModal.onclick = closeModal;
+  btnCancelModal.onclick = closeModal;
+
+  modalBackdrop.addEventListener("click", (e) => {
+    if (e.target === modalBackdrop) closeModal();
+  });
+
+  btnSaveProject.onclick = () => {
+    // UI only for now
+    closeModal();
+    alert("Project UI created (saving not enabled yet).");
+  };
+
+  // Default tab
+  showTab("register");
 </script>
 </body>
 </html>
