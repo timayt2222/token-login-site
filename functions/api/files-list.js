@@ -8,32 +8,42 @@ export async function onRequestGet({ request, env }) {
     const username = await env.TOKENS.get(token);
     if (!username) return jerr("Invalid token.", 401);
 
-    const projRaw = await env.TOKENS.get(`${token}/project`);
-    if (!projRaw) return jerr("No project.", 403);
+    const project = await env.TOKENS.get(`${token}/project`);
+    if (!project) return jerr("No project.", 403);
 
-    const prefix = `${token}/p/meta/`;
-    const files = [];
+    // Support both meta prefixes
+    const listA = await listMeta(env.TOKENS, `${token}/meta/`);
+    const listB = await listMeta(env.TOKENS, `${token}/p/meta/`);
 
-    let cursor = undefined;
-    do {
-      const listed = await env.TOKENS.list({ prefix, cursor });
-      cursor = listed.cursor;
+    // Merge unique by filename (prefer A)
+    const map = new Map();
+    for (const x of listB) map.set(x.filename, x);
+    for (const x of listA) map.set(x.filename, x);
 
-      for (const k of listed.keys) {
-        const filename = k.name.slice(prefix.length);
-        const metaRaw = await env.TOKENS.get(k.name);
-        let meta = null;
-        try { meta = metaRaw ? JSON.parse(metaRaw) : null; } catch {}
-        files.push({ filename, meta });
-      }
-      if (listed.list_complete) break;
-    } while (cursor);
-
-    files.sort((a,b)=>a.filename.localeCompare(b.filename));
+    const files = Array.from(map.values()).sort((a,b)=>a.filename.localeCompare(b.filename));
     return j({ files });
   } catch (e) {
     return jerr(e?.message || "List failed.", 500);
   }
+}
+
+async function listMeta(kv, prefix){
+  const out = [];
+  let cursor;
+  do{
+    const listed = await kv.list({ prefix, cursor });
+    cursor = listed.cursor;
+
+    for (const k of listed.keys) {
+      const filename = k.name.slice(prefix.length);
+      const metaRaw = await kv.get(k.name);
+      let meta = null;
+      try { meta = metaRaw ? JSON.parse(metaRaw) : null; } catch {}
+      out.push({ filename, meta });
+    }
+    if (listed.list_complete) break;
+  }while(cursor);
+  return out;
 }
 
 const j = (d, s=200) => new Response(JSON.stringify(d), { status:s, headers:{ "content-type":"application/json" }});
