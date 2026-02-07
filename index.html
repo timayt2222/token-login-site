@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Token Login</title>
+  <style>
+    body { font-family: system-ui, Arial; background:#0b0f1a; color:#e7ecff; margin:0; }
+    .wrap { max-width: 720px; margin: 48px auto; padding: 24px; }
+    .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 18px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    p { margin: 0 0 16px; opacity: 0.85; }
+
+    .topBtns { display:flex; gap:14px; align-items:center; margin: 18px 0 8px; }
+    .divider { width: 1px; height: 26px; background: rgba(255,255,255,0.22); }
+
+    button {
+      cursor:pointer; border:none; border-radius: 14px; padding: 12px 16px;
+      background: rgba(120,90,255,0.25); color:#e7ecff; font-weight:700;
+      border: 1px solid rgba(120,90,255,0.45);
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0px); }
+
+    .section { display:none; margin-top: 16px; }
+    .section.active { display:block; }
+
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input, textarea {
+      width: 100%; max-width: 560px;
+      background: rgba(255,255,255,0.06); color:#e7ecff;
+      border: 1px solid rgba(255,255,255,0.14); border-radius: 14px;
+      padding: 12px 12px; outline:none;
+    }
+    textarea { min-height: 92px; resize: vertical; }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .pill { display:inline-block; padding: 6px 10px; border-radius:999px;
+            background: rgba(0,255,170,0.12); border: 1px solid rgba(0,255,170,0.35); }
+    .ok { color:#52ffb8; }
+    .bad { color:#ff6b6b; }
+    .small { font-size: 13px; opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Token Login</h1>
+      <p>Register to get a token. Then log in using that token.</p>
+
+      <div class="topBtns">
+        <button id="btnRegister">Register</button>
+        <div class="divider"></div>
+        <button id="btnLogin">Log In</button>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="registerSection" class="section">
+        <p class="small">Click register and you’ll get a random username + token.</p>
+        <div class="row">
+          <button id="doRegister">Generate Token</button>
+          <button id="copyToken" disabled>Copy Token</button>
+          <button id="downloadToken" disabled>Download .txt</button>
+        </div>
+
+        <div style="margin-top:14px;">
+          <div id="regStatus"></div>
+          <div id="regOut" style="margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="loginSection" class="section">
+        <p class="small">Paste your token below (from the .txt or copied).</p>
+        <textarea id="tokenInput" class="mono" placeholder="Paste token here..."></textarea>
+        <div class="row" style="margin-top:10px;">
+          <button id="doLogin">Log In</button>
+        </div>
+        <div style="margin-top:12px;" id="loginStatus"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  const registerSection = $("registerSection");
+  const loginSection = $("loginSection");
+
+  const regStatus = $("regStatus");
+  const regOut = $("regOut");
+  const loginStatus = $("loginStatus");
+
+  let lastToken = null;
+
+  function show(section) {
+    registerSection.classList.remove("active");
+    loginSection.classList.remove("active");
+    section.classList.add("active");
+  }
+
+  $("btnRegister").onclick = () => show(registerSection);
+  $("btnLogin").onclick = () => show(loginSection);
+
+  // default view
+  show(registerSection);
+
+  $("doRegister").onclick = async () => {
+    regStatus.innerHTML = "Registering...";
+    regOut.innerHTML = "";
+    lastToken = null;
+    $("copyToken").disabled = true;
+    $("downloadToken").disabled = true;
+
+    try {
+      const res = await fetch("/api/register", { method: "POST" });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data?.error || "Register failed");
+
+      lastToken = data.token;
+
+      regStatus.innerHTML = `<span class="ok">✅ Registered!</span> <span class="pill">username: <b>${data.username}</b></span>`;
+      regOut.innerHTML = `
+        <div class="small" style="margin-top:8px;">Your token (save it):</div>
+        <div class="mono" style="margin-top:6px; padding:12px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06);">
+          ${data.token}
+        </div>
+      `;
+
+      $("copyToken").disabled = false;
+      $("downloadToken").disabled = false;
+
+    } catch (e) {
+      regStatus.innerHTML = `<span class="bad">❌ ${e.message}</span>`;
+    }
+  };
+
+  $("copyToken").onclick = async () => {
+    if (!lastToken) return;
+    await navigator.clipboard.writeText(lastToken);
+    regStatus.innerHTML = `<span class="ok">✅ Copied token to clipboard</span>`;
+  };
+
+  $("downloadToken").onclick = () => {
+    if (!lastToken) return;
+    const blob = new Blob([lastToken], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "token.txt";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  $("doLogin").onclick = async () => {
+    const token = $("tokenInput").value.trim();
+    loginStatus.innerHTML = "Checking token...";
+
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token })
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data?.error || "Login failed");
+
+      loginStatus.innerHTML = `<span class="ok">✅ Logged in as <b>${data.username}</b></span>`;
+    } catch (e) {
+      loginStatus.innerHTML = `<span class="bad">❌ ${e.message}</span>`;
+    }
+  };
+</script>
+</body>
+</html>
