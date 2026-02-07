@@ -1,44 +1,19 @@
-export async function onRequestPost(context) {
-  const { env, request } = context;
-  const TOKENS = env.TOKENS;
-
-  let body;
+export async function onRequestPost({ request, env }) {
   try {
-    body = await request.json();
-  } catch {
-    return new Response(
-      JSON.stringify({ error: "Invalid JSON body" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
+    if (!env.TOKENS) return jerr("KV binding TOKENS missing.", 500);
+
+    const body = await request.json().catch(() => null);
+    const token = (body?.token || "").trim();
+    if (!token) return jerr("token required", 400);
+
+    const username = await env.TOKENS.get(token);
+    if (!username) return jerr("Invalid token.", 401);
+
+    return j({ username });
+  } catch (e) {
+    return jerr(e?.message || "Login failed.", 500);
   }
-
-  const token = (body?.token || "").trim();
-
-  if (!token) {
-    return new Response(
-      JSON.stringify({ error: "Token is required" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  // Check KV for token
-  const username = await TOKENS.get(token);
-
-  if (!username) {
-    return new Response(
-      JSON.stringify({ error: "Invalid token" }),
-      { status: 401, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  // Success
-  return new Response(
-    JSON.stringify({ success: true, username }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store"
-      }
-    }
-  );
 }
+
+const j = (d, s=200) => new Response(JSON.stringify(d), { status:s, headers:{ "content-type":"application/json" }});
+const jerr = (m, s=400) => j({ error:m }, s);
