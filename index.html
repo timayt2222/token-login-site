@@ -1,614 +1,424 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Alts Hosting</title>
-  <style>
-    :root{
-      --bg:#ffffff;
-      --text:#0f172a;        /* slate-900 */
-      --muted:#64748b;       /* slate-500 */
-      --card:#ffffff;
-      --border:#e2e8f0;      /* slate-200 */
-      --shadow: 0 10px 30px rgba(2,6,23,.08);
-      --primary:#2563eb;     /* blue-600 */
-      --primary2:#1d4ed8;    /* blue-700 */
-      --success:#16a34a;     /* green-600 */
-      --danger:#dc2626;      /* red-600 */
-      --soft:#f8fafc;        /* slate-50 */
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alts Hosting - Dashboard</title>
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background:var(--bg);
-      color:var(--text);
-    }
+<!-- Lucide icons script -->
+<script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
 
-    .wrap{
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 28px 18px 60px;
-    }
+<style>
+  :root {
+    --bg-light: #f7faff;
+    --bg-dark: #111827;
+    --text-light: #1f2937;
+    --text-dark: #e5e7eb;
+    --muted-light: #6b7280;
+    --muted-dark: #9ca3af;
+    --primary: #2563eb;
+    --primary2: #1d4ed8;
+    --primary-glow: 0 0 12px rgba(37,99,235,0.45);
+    --border-light: #e5e7eb;
+    --border-dark: #374151;
+    --danger: #dc2626;
+  }
+  
+  *{box-sizing:border-box;}
 
-    /* top nav */
-    .nav{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:16px;
-      padding: 16px 6px;
-      margin-bottom: 18px;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
-    .dot{
-      width:12px;height:12px;border-radius:999px;background:var(--primary);
-      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
-    }
-    .rightHint{
-      color:var(--muted);
-      font-size: 13px;
-      font-weight: 600;
-    }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    background: var(--bg-light);
+    color: var(--text-light);
+    transition: background .2s, color .2s;
+  }
+  
+  body.dark {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+  }
+  
+  .screen{ display:none;}
+  .screen.active{ display:block;}
 
-    /* card */
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .cardHead{
-      padding: 20px 22px;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, #ffffff 0%, var(--soft) 100%);
-    }
-    .title{
-      margin:0 0 6px;
-      font-size: 22px;
-      font-weight: 850;
-    }
-    .sub{
-      margin:0;
-      color:var(--muted);
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 1.4;
-    }
-    .cardBody{
-      padding: 18px 22px 22px;
-    }
+  /* GENERAL BUTTONS */
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: .15s;
+  }
+  button:hover{ transform: translateY(-2px); }
+  
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: var(--primary-glow);
+  }
+  .btn-primary:hover {
+    background: var(--primary2);
+  }
+  
+  .btn-ghost {
+    background: #fff;
+    border: 1px solid var(--border-light);
+    color: var(--text-light);
+  }
+  body.dark .btn-ghost {
+    border: 1px solid var(--border-dark);
+    color: var(--text-dark);
+  }
 
-    /* tabs */
-    .tabs{
-      display:flex;
-      gap: 12px;
-      align-items:center;
-      padding: 14px 22px;
-      border-bottom: 1px solid var(--border);
-      background:#fff;
-    }
-    .tabBtn{
-      border:1px solid var(--border);
-      background:#fff;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-weight: 800;
-      cursor:pointer;
-      transition:.12s;
-    }
-    .tabBtn:hover{ transform: translateY(-1px); }
-    .tabBtn.active{
-      border-color: rgba(37,99,235,.35);
-      box-shadow: 0 0 0 4px rgba(37,99,235,.10);
-    }
-    .divider{
-      width:1px;height:26px;background:var(--border);
-      margin: 0 2px;
-    }
+  .btn-danger {
+    background: #fff;
+    border: 1px solid rgba(220,38,38,0.35);
+    color: var(--danger);
+  }
 
-    /* forms */
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-    .row{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items:center;
-    }
-    .label{
-      font-size: 13px;
-      font-weight: 850;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    textarea, input{
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px 12px;
-      font-size: 14px;
-      font-weight: 650;
-      outline:none;
-      background:#fff;
-    }
-    textarea{ min-height: 92px; resize: vertical; }
-    textarea:focus, input:focus{
-      border-color: rgba(37,99,235,.45);
-      box-shadow: 0 0 0 4px rgba(37,99,235,.10);
-    }
+  .status { margin-top: 10px; font-weight: 700; color: var(--muted-light);}
+  body.dark .status{ color: var(--muted-dark);}
 
-    /* buttons */
-    button{
-      border:none;
-      cursor:pointer;
-      border-radius: 14px;
-      padding: 11px 14px;
-      font-weight: 900;
-      transition:.12s;
-      font-size: 14px;
-    }
-    button:active{ transform: translateY(1px); }
-    .btnPrimary{
-      background: var(--primary);
-      color: #fff;
-    }
-    .btnPrimary:hover{ background: var(--primary2); }
-    .btnGhost{
-      background:#fff;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    .btnGhost:hover{ transform: translateY(-1px); }
-    .btnDanger{
-      background: #fff;
-      border: 1px solid rgba(220,38,38,.35);
-      color: var(--danger);
-    }
-    .btnBig{
-      width: 100%;
-      padding: 16px 16px;
-      font-size: 16px;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(37,99,235,.16);
-    }
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 18px;
+  }
 
-    /* status / token box */
-    .status{
-      font-weight: 800;
-      color: var(--muted);
-      font-size: 14px;
-      margin-top: 10px;
-    }
-    .ok{ color: var(--success); }
-    .bad{ color: var(--danger); }
+  .login-card {
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    background: #fff;
+  }
+  body.dark .login-card {
+    border: 1px solid var(--border-dark);
+    background: #374151;
+  }
 
-    .pill{
-      display:inline-block;
-      font-size: 12px;
-      font-weight: 900;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(37,99,235,.08);
-      border: 1px solid rgba(37,99,235,.22);
-      color: var(--text);
-    }
+  .title{ font-size: 24px; font-weight:900; margin-bottom:8px;}
+  .tab { display:flex; gap:12px; margin-bottom:16px;}
+  .tab button { font-size:16px;}
 
-    .mono{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-weight: 700;
-    }
-    .tokenBox{
-      margin-top: 10px;
-      border:1px solid var(--border);
-      background: var(--soft);
-      border-radius: 14px;
-      padding: 12px;
-    }
+  textarea, input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    font-size: 14px;
+    margin-top: 6px;
+  }
+  body.dark textarea, body.dark input {
+    border: 1px solid var(--border-dark);
+    background: #1f2937;
+    color: var(--text-dark);
+  }
 
-    /* screens */
-    .screen{ display:none; }
-    .screen.active{ display:block; }
+  .dashboard-top { display:flex; justify-content: space-between; align-items:center;}
+  .file-list {margin-top:12px; list-style:none;padding:0;}
+  .file-list li{
+    padding: 8px 0;
+    border-bottom:1px solid var(--border-light);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  body.dark .file-list li{ border-bottom:1px solid var(--border-dark);}
 
-    /* dashboard */
-    .dashTop{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-    .dashTitle{
-      margin:0;
-      font-size: 18px;
-      font-weight: 900;
-    }
-    .dashSub{
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-    }
-    .emptyState{
-      border: 1px dashed var(--border);
-      background: #fff;
-      border-radius: 16px;
-      padding: 18px;
-      color: var(--muted);
-      font-weight: 700;
-      line-height: 1.5;
-    }
-
-    /* modal */
-    .modalBackdrop{
-      position: fixed;
-      inset: 0;
-      background: rgba(2,6,23,.38);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-    }
-    .modalBackdrop.open{ display:flex; }
-    .modal{
-      width: min(520px, 100%);
-      background:#fff;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      box-shadow: 0 18px 50px rgba(2,6,23,.25);
-      overflow:hidden;
-    }
-    .modalHead{
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--border);
-      font-weight: 900;
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-    }
-    .modalBody{ padding: 16px 18px 18px; }
-    .xBtn{
-      width: 36px; height: 36px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background:#fff;
-      font-weight: 900;
-    }
-  </style>
+  .drop-zone {
+    margin-top: 18px;
+    border: 2px dashed var(--border-light);
+    padding: 28px;
+    border-radius: 14px;
+    text-align: center;
+    color: var(--muted-light);
+    cursor: pointer;
+    transition: .2s;
+  }
+  body.dark .drop-zone {
+    border: 2px dashed var(--border-dark);
+    color: var(--muted-dark);
+  }
+  .drop-zone:hover {
+    background: rgba(37,99,235,0.06);
+  }
+  
+</style>
 </head>
-
 <body>
-  <div class="wrap">
-    <div class="nav">
-      <div class="brand">
-        <span class="dot"></span>
-        <span>Alts Hosting</span>
+
+<div class="wrap">
+
+  <!-- AUTH SCREEN -->
+  <div id="authScreen" class="screen active">
+    <div class="login-card">
+      
+      <div class="dashboard-top" style="margin-bottom:14px;">
+        <div class="title">Access Portal</div>
+        <button id="themeToggle">
+          <i data-lucide="moon"></i>
+        </button>
       </div>
-      <div class="rightHint">Token-based access • Simple & secure</div>
-    </div>
+      
+      <div class="tab">
+        <button id="tabRegBtn" class="btn-primary">Register</button>
+        <button id="tabLoginBtn" class="btn-ghost">Log In</button>
+      </div>
 
-    <div class="card">
-
-      <!-- AUTH VIEW -->
-      <div id="authView" class="screen active">
-        <div class="cardHead">
-          <h1 class="title">Access Portal</h1>
-          <p class="sub">Register to generate a token. Then log in using that token to access your dashboard.</p>
-        </div>
-
-        <div class="tabs">
-          <button id="tabRegister" class="tabBtn active">Register</button>
-          <div class="divider"></div>
-          <button id="tabLogin" class="tabBtn">Log In</button>
-        </div>
-
-        <div class="cardBody">
-          <!-- Register -->
-          <div id="registerScreen" class="screen active">
-            <div class="grid">
-              <div>
-                <button id="btnRegister" class="btnPrimary btnBig">Generate Token</button>
-                <div id="regStatus" class="status"></div>
-              </div>
-
-              <div id="regResult" style="display:none;">
-                <div class="row" style="justify-content:space-between;">
-                  <span class="pill" id="userPill">username: ???</span>
-                  <div class="row">
-                    <button id="btnCopy" class="btnGhost" disabled>Copy Token</button>
-                    <button id="btnDownload" class="btnGhost" disabled>Download .txt</button>
-                  </div>
-                </div>
-
-                <div class="tokenBox">
-                  <div class="label">Your token</div>
-                  <div id="tokenText" class="mono" style="word-break: break-all;"></div>
-                </div>
-
-                <div class="emptyState" style="margin-top:12px;">
-                  Save this token. If you lose it, you can’t log in again.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Login -->
-          <div id="loginScreen" class="screen">
-            <div class="grid">
-              <div>
-                <div class="label">Paste your token</div>
-                <textarea id="loginToken" class="mono" placeholder="Paste token here..."></textarea>
-              </div>
-
-              <div class="row">
-                <button id="btnLogin" class="btnPrimary">Log In</button>
-              </div>
-
-              <div id="loginStatus" class="status"></div>
-            </div>
-          </div>
+      <div id="regForm">
+        <button id="genTokenBtn" class="btn-primary" style="width:100%;">
+          <i data-lucide="circle-pound-sterling"></i>
+          Generate Token
+        </button>
+        <div id="regStatus" class="status"></div>
+        <textarea id="regTokenShow" readonly style="margin-top:12px; display:none;"></textarea>
+        <div style="margin-top:10px; display:flex; gap:10px;">
+          <button id="copyTokenBtn" class="btn-ghost" disabled>
+            <i data-lucide="clipboard"></i> Copy Token
+          </button>
+          <button id="downloadTokenBtn" class="btn-ghost" disabled>
+            <i data-lucide="download"></i> Download .txt
+          </button>
         </div>
       </div>
 
-      <!-- DASHBOARD VIEW -->
-      <div id="dashboardView" class="screen">
-        <div class="cardHead">
-          <h1 class="title">Dashboard</h1>
-          <p class="sub">Welcome back. Project features are coming soon.</p>
-        </div>
-
-        <div class="cardBody">
-          <div class="dashTop">
-            <div>
-              <p class="dashTitle" id="dashHello">Hello</p>
-              <p class="dashSub">You are logged in using a token.</p>
-            </div>
-
-            <div class="row">
-              <button id="btnCreateProject" class="btnPrimary">Create Project</button>
-              <button id="btnLogout" class="btnDanger">Log out</button>
-            </div>
-          </div>
-
-          <div class="emptyState">
-            <b>Projects</b><br/>
-            No projects yet. Click <b>Create Project</b> to open the form.
-          </div>
-        </div>
+      <div id="loginForm" style="display:none;">
+        <div class="status">Enter token to login:</div>
+        <textarea id="loginTokenInput"></textarea>
+        <button id="loginBtn" class="btn-primary" style="margin-top:12px;">
+          <i data-lucide="log-in"></i> Log In
+        </button>
+        <div id="loginStatus" class="status"></div>
       </div>
 
     </div>
   </div>
 
-  <!-- Create Project Modal -->
-  <div id="modalBackdrop" class="modalBackdrop">
-    <div class="modal">
-      <div class="modalHead">
-        <span>Create Project</span>
-        <button id="btnCloseModal" class="xBtn">✕</button>
+  <!-- DASHBOARD SCREEN -->
+  <div id="dashScreen" class="screen">
+    <div class="dashboard-top">
+      <div>
+        <div class="title">My Project Dashboard</div>
+        <div class="status" id="dashWelcome"></div>
       </div>
-      <div class="modalBody">
-        <div class="label">Project Name:</div>
-        <input id="projectName" placeholder="e.g. My First Project" />
-        <div class="row" style="margin-top:12px; justify-content:flex-end;">
-          <button id="btnCancelModal" class="btnGhost">Cancel</button>
-          <button id="btnSaveProject" class="btnPrimary">Create</button>
-        </div>
-        <div class="status" style="margin-top:10px; color:var(--muted);">
-          (Dashboard project saving is not enabled yet — UI only)
-        </div>
+      <button id="themeToggle2">
+        <i data-lucide="moon"></i>
+      </button>
+    </div>
+
+    <!-- File upload + list -->
+    <div>
+      <button class="btn-primary glow" id="uploadBtn">
+        <i data-lucide="upload-cloud"></i>
+        Upload Files
+      </button>
+      <ul class="file-list" id="fileList"></ul>
+
+      <div class="drop-zone" id="dropZone">
+        <i data-lucide="file-plus"></i><br>
+        Drag & drop files here or click to browse
       </div>
+      <input type="file" id="fileInput" multiple style="display:none;">
+    </div>
+
+    <!-- Delete account -->
+    <div style="margin-top:24px; border-top:1px solid var(--border-light); padding-top:18px;">
+      <div class="status">Danger zone:</div>
+      <input type="text" id="deleteConfirm" placeholder="Type Delete Account to confirm">
+      <button class="btn-danger" id="delAccBtn">
+        <i data-lucide="trash"></i> Delete Account
+      </button>
+      <div id="delStatus" class="status"></div>
     </div>
   </div>
+
+</div>
 
 <script>
-  const $ = (id) => document.getElementById(id);
+  // INIT LUCIDE
+  lucide.replace({width:20, height:20});
 
-  // Views
-  const authView = $("authView");
-  const dashboardView = $("dashboardView");
-  const registerScreen = $("registerScreen");
-  const loginScreen = $("loginScreen");
+  // THEME
+  const themeToggle = document.querySelectorAll("#themeToggle, #themeToggle2");
+  const bodyEl = document.body;
+  const storedTheme = localStorage.getItem("themeMode");
+  if(storedTheme==="dark") bodyEl.classList.add("dark");
 
-  // Tabs
-  const tabRegister = $("tabRegister");
-  const tabLogin = $("tabLogin");
+  themeToggle.forEach(btn => {
+    btn.onclick = ()=>{
+      bodyEl.classList.toggle("dark");
+      localStorage.setItem("themeMode", bodyEl.classList.contains("dark") ? "dark":"light");
+      lucide.replace({width:20, height:20});
+    };
+  });
 
-  // Register elements
-  const btnRegister = $("btnRegister");
-  const regStatus = $("regStatus");
-  const regResult = $("regResult");
-  const userPill = $("userPill");
-  const tokenText = $("tokenText");
-  const btnCopy = $("btnCopy");
-  const btnDownload = $("btnDownload");
+  // AUTH LOGIC
+  const authScreen = document.getElementById("authScreen");
+  const dashScreen = document.getElementById("dashScreen");
+  const dashWelcome = document.getElementById("dashWelcome");
 
-  // Login elements
-  const loginToken = $("loginToken");
-  const btnLogin = $("btnLogin");
-  const loginStatus = $("loginStatus");
+  const tabRegBtn = document.getElementById("tabRegBtn");
+  const tabLoginBtn = document.getElementById("tabLoginBtn");
+  const regForm = document.getElementById("regForm");
+  const loginForm = document.getElementById("loginForm");
 
-  // Dashboard
-  const dashHello = $("dashHello");
-  const btnLogout = $("btnLogout");
-  const btnCreateProject = $("btnCreateProject");
+  const genTokenBtn = document.getElementById("genTokenBtn");
+  const regStatus = document.getElementById("regStatus");
+  const regTokenShow = document.getElementById("regTokenShow");
+  const copyTokenBtn = document.getElementById("copyTokenBtn");
+  const downloadTokenBtn = document.getElementById("downloadTokenBtn");
 
-  // Modal
-  const modalBackdrop = $("modalBackdrop");
-  const btnCloseModal = $("btnCloseModal");
-  const btnCancelModal = $("btnCancelModal");
-  const btnSaveProject = $("btnSaveProject");
-  const projectName = $("projectName");
+  const loginTokenInput = document.getElementById("loginTokenInput");
+  const loginBtn = document.getElementById("loginBtn");
+  const loginStatus = document.getElementById("loginStatus");
 
-  let lastToken = null;
+  let savedToken = localStorage.getItem("userToken");
+  let savedUsername = localStorage.getItem("username");
 
-  // Username pattern: swift12345 / roblox12345 / altsagent12345
-  function makeUsername() {
-    const prefixes = ["swift", "roblox", "altsagent"];
-    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-    const num = Math.floor(10000 + Math.random() * 90000); // 5-digit
+  function makeUsername(){
+    const prefixes=["swift","roblox","altsagent"];
+    const prefix=prefixes[Math.floor(Math.random()*prefixes.length)];
+    const num=Math.floor(10000+Math.random()*90000);
     return `${prefix}${num}`;
   }
 
-  function showTab(tab) {
-    tabRegister.classList.remove("active");
-    tabLogin.classList.remove("active");
-    registerScreen.classList.remove("active");
-    loginScreen.classList.remove("active");
-
-    if (tab === "register") {
-      tabRegister.classList.add("active");
-      registerScreen.classList.add("active");
-    } else {
-      tabLogin.classList.add("active");
-      loginScreen.classList.add("active");
-    }
+  function showScreen(s){
+    authScreen.classList.remove("active");
+    dashScreen.classList.remove("active");
+    document.getElementById(s).classList.add("active");
   }
 
-  function showDashboard(username) {
-    authView.classList.remove("active");
-    dashboardView.classList.add("active");
-    dashHello.textContent = `Hello, ${username}`;
+  // AUTO LOGIN IF TOKEN
+  if(savedToken){
+    showScreen("dashScreen");
+    dashWelcome.textContent = `Logged in as ${savedUsername}`;
   }
 
-  function showAuth() {
-    dashboardView.classList.remove("active");
-    authView.classList.add("active");
-    showTab("register");
-  }
+  tabRegBtn.onclick = ()=>{
+    regForm.style.display="block";
+    loginForm.style.display="none";
+    tabRegBtn.classList.add("btn-primary");
+    tabLoginBtn.classList.remove("btn-primary");
+  };
+  tabLoginBtn.onclick = ()=>{
+    regForm.style.display="none";
+    loginForm.style.display="block";
+    tabLoginBtn.classList.add("btn-primary");
+    tabRegBtn.classList.remove("btn-primary");
+  };
 
-  tabRegister.onclick = () => showTab("register");
-  tabLogin.onclick = () => showTab("login");
+  genTokenBtn.onclick = async ()=>{
+    const username=makeUsername();
+    regStatus.textContent="Getting token...";
+    try{
+      // call backend
+      const res=await fetch("/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username})});
+      const data=await res.json();
+      if(!res.ok) throw new Error(data.error||"Register failed");
+      savedToken=data.token;
+      savedUsername=data.username;
+      localStorage.setItem("userToken", savedToken);
+      localStorage.setItem("username", savedUsername);
 
-  // ---- Register ----
-  btnRegister.onclick = async () => {
-    regStatus.innerHTML = "Generating token...";
-    regStatus.className = "status";
-    regResult.style.display = "none";
-    btnCopy.disabled = true;
-    btnDownload.disabled = true;
-    lastToken = null;
+      regTokenShow.value=data.token;
+      regTokenShow.style.display="block";
+      copyTokenBtn.disabled=false;
+      downloadTokenBtn.disabled=false;
+      regStatus.textContent="Token generated!";
+      dashWelcome.textContent=`Logged in as ${savedUsername}`;
 
-    const username = makeUsername();
-
-    try {
-      // send username so server stores it with token
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username })
-      });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data?.error || "Register failed");
-
-      lastToken = data.token;
-
-      userPill.textContent = `username: ${data.username}`;
-      tokenText.textContent = data.token;
-
-      regResult.style.display = "block";
-      regStatus.innerHTML = "✅ Token created. Save it somewhere safe.";
-      regStatus.className = "status ok";
-
-      btnCopy.disabled = false;
-      btnDownload.disabled = false;
-
-    } catch (e) {
-      regStatus.innerHTML = `❌ ${e.message}`;
-      regStatus.className = "status bad";
+    }catch(e){
+      regStatus.textContent=`Error: ${e.message}`;
     }
   };
 
-  btnCopy.onclick = async () => {
-    if (!lastToken) return;
-    await navigator.clipboard.writeText(lastToken);
-    regStatus.innerHTML = "✅ Copied token to clipboard.";
-    regStatus.className = "status ok";
-  };
-
-  btnDownload.onclick = () => {
-    if (!lastToken) return;
-    const blob = new Blob([lastToken], { type: "text/plain" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "token.txt";
+  copyTokenBtn.onclick = ()=>navigator.clipboard.writeText(regTokenShow.value);
+  downloadTokenBtn.onclick = ()=>{
+    const blob=new Blob([regTokenShow.value],{type:"text/plain"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="token.txt";
     a.click();
     URL.revokeObjectURL(a.href);
   };
 
-  // ---- Login ----
-  btnLogin.onclick = async () => {
-    const token = loginToken.value.trim();
-    loginStatus.innerHTML = "Checking token...";
-    loginStatus.className = "status";
-
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token })
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Login failed");
-
-      loginStatus.innerHTML = "✅ Logged in.";
-      loginStatus.className = "status ok";
-
-      showDashboard(data.username);
-
-    } catch (e) {
-      loginStatus.innerHTML = `❌ ${e.message}`;
-      loginStatus.className = "status bad";
+  loginBtn.onclick = async ()=>{
+    const token=loginTokenInput.value.trim();
+    loginStatus.textContent="Checking...";
+    try{
+      const res=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token})});
+      const data=await res.json();
+      if(!res.ok) throw new Error(data.error||"Login failed");
+      savedToken=token;
+      savedUsername=data.username;
+      localStorage.setItem("userToken", savedToken);
+      localStorage.setItem("username", savedUsername);
+      dashWelcome.textContent=`Logged in as ${savedUsername}`;
+      showScreen("dashScreen");
+    }catch(e){
+      loginStatus.textContent=`Error: ${e.message}`;
     }
   };
 
-  // ---- Dashboard actions ----
-  btnLogout.onclick = () => {
-    // no real session yet, just UI
-    loginToken.value = "";
-    showAuth();
+  // FILE STORAGE (localStorage)
+  const fileListUI=document.getElementById("fileList");
+  const dropZone=document.getElementById("dropZone");
+  const fileInput=document.getElementById("fileInput");
+  let storedFiles=JSON.parse(localStorage.getItem("files"))||[];
+
+  function refreshFiles(){
+    fileListUI.innerHTML="";
+    storedFiles.forEach(f=>{
+      const li=document.createElement("li");
+      const icon=document.createElement("i");
+      icon.setAttribute("data-lucide", f.name.endsWith(".py")?"pyramid":"file-archive");
+      li.appendChild(icon);
+      li.appendChild(document.createTextNode(f.name));
+      fileListUI.appendChild(li);
+    });
+    lucide.replace({width:20,height:20});
+  }
+  refreshFiles();
+
+  fileInput.onchange=(e)=>{
+    const files=[...e.target.files];
+    files.forEach(f=>{
+      storedFiles.push({name:f.name});
+    });
+    localStorage.setItem("files", JSON.stringify(storedFiles));
+    refreshFiles();
   };
 
-  function openModal() {
-    modalBackdrop.classList.add("open");
-    projectName.value = "";
-    setTimeout(() => projectName.focus(), 10);
-  }
-  function closeModal() {
-    modalBackdrop.classList.remove("open");
-  }
-
-  btnCreateProject.onclick = openModal;
-  btnCloseModal.onclick = closeModal;
-  btnCancelModal.onclick = closeModal;
-
-  modalBackdrop.addEventListener("click", (e) => {
-    if (e.target === modalBackdrop) closeModal();
-  });
-
-  btnSaveProject.onclick = () => {
-    // UI only for now
-    closeModal();
-    alert("Project UI created (saving not enabled yet).");
+  dropZone.onclick=()=>fileInput.click();
+  dropZone.ondragover=(ev)=>{ev.preventDefault();dropZone.classList.add("hover");};
+  dropZone.ondragleave=()=>dropZone.classList.remove("hover");
+  dropZone.ondrop=(ev)=>{
+    ev.preventDefault();dropZone.classList.remove("hover");
+    const files=[...ev.dataTransfer.files];
+    files.forEach(f=>{storedFiles.push({name:f.name});});
+    localStorage.setItem("files",JSON.stringify(storedFiles));
+    refreshFiles();
   };
 
-  // Default tab
-  showTab("register");
+  // DELETE ACCOUNT
+  const delAccBtn=document.getElementById("delAccBtn");
+  const deleteConfirm = document.getElementById("deleteConfirm");
+  const delStatus=document.getElementById("delStatus");
+
+  delAccBtn.onclick=()=>{
+    if(deleteConfirm.value.trim()==="Delete Account"){
+      localStorage.clear();
+      location.reload();
+    } else delStatus.textContent="Type exactly 'Delete Account' to confirm";
+  };
+
 </script>
+
 </body>
 </html>
