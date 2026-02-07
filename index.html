@@ -5,345 +5,317 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Token Vault</title>
 
-  <script src="https://unpkgide="https://unpkg.com/lucide@latest"></script>
+  <!-- FIXED lucide import -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
     :root{
-      --bg: #f7f9ff;
-      --panel: rgba(15,23,42,0.04);
-      --panel2: rgba(15,23,42,0.06);
-      --text: #0b1222;
-      --muted: rgba(11,18,34,0.62);
-      --border: rgba(11,18,34,0.12);
+      --bg:#ffffff;
+      --bg2:#f6f8ff;
+      --card:#ffffff;
+      --text:#0b1222;
+      --muted:rgba(11,18,34,.62);
+      --border:rgba(11,18,34,.12);
+      --shadow:0 18px 55px rgba(10,20,40,.10);
 
-      --blue: #2563eb;
-      --blue2: #38bdf8;
-      --glow: rgba(37,99,235,0.24);
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --glow:rgba(37,99,235,.22);
 
-      --danger: #e23b57;
-      --dangerSoft: rgba(226,59,87,0.12);
+      --danger:#e23b57;
 
-      --shadow: 0 18px 55px rgba(10,20,40,0.14);
-      --radius: 18px;
-
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --r:18px;
+      --r2:14px;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
     [data-theme="dark"]{
-      --bg: #0b0f17;
-      --panel: rgba(255,255,255,0.06);
-      --panel2: rgba(255,255,255,0.08);
-      --text: #eaf0ff;
-      --muted: rgba(234,240,255,0.68);
-      --border: rgba(234,240,255,0.14);
+      --bg:#0b0f17;
+      --bg2:#0f1624;
+      --card:#101a2b;
+      --text:#eaf0ff;
+      --muted:rgba(234,240,255,.68);
+      --border:rgba(234,240,255,.14);
+      --shadow:0 22px 70px rgba(0,0,0,.45);
 
-      --blue: #3b82f6;
-      --blue2: #22d3ee;
-      --glow: rgba(59,130,246,0.28);
+      --blue:#3b82f6;
+      --blue2:#2563eb;
+      --glow:rgba(59,130,246,.26);
 
-      --danger: #ff4d6d;
-      --dangerSoft: rgba(255,77,109,0.14);
-
-      --shadow: 0 22px 70px rgba(0,0,0,0.48);
+      --danger:#ff4d6d;
     }
 
     *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family: var(--sans);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+      font-family:var(--sans);
+      background: linear-gradient(180deg, var(--bg), var(--bg2));
+      color:var(--text);
+      min-height:100vh;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 26px;
+      padding:24px;
     }
 
     .wrap{ width:min(1100px, 100%); }
 
-    .card{
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, var(--panel), var(--panel2));
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-
-    .view{ display:none; opacity:0; transform: translateY(10px); transition: 220ms ease; }
-    .view.active{ display:block; opacity:1; transform: translateY(0); }
-
-    .authGrid{
-      display:grid;
-      grid-template-columns: 420px 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 980px){
-      .authGrid{ grid-template-columns: 1fr; }
-    }
-
-    .pad{ padding: 18px; }
-
-    .topbar{
+    .top{
       display:flex;
-      justify-content:space-between;
       align-items:center;
-      gap: 10px;
-      padding: 18px 18px 0;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
     }
 
     .brand{
       display:flex;
       flex-direction:column;
-      gap: 4px;
+      gap:2px;
     }
-
-    .brand h1{
-      margin:0;
-      font-size: 18px;
-      letter-spacing: 0.2px;
-    }
-    .brand small{
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    .col{ display:flex; flex-direction:column; gap: 10px; }
+    .brand b{ font-size:16px; letter-spacing:.2px; }
+    .brand span{ font-size:12px; color:var(--muted); font-weight:700; }
 
     .btn{
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.55);
-      color: var(--text);
-      padding: 12px 14px;
-      border-radius: 14px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:var(--r2);
       cursor:pointer;
-      transition: transform 140ms ease, filter 140ms ease, background 140ms ease, box-shadow 140ms ease;
-      font-weight: 900;
+      font-weight:900;
       display:inline-flex;
       align-items:center;
-      justify-content:center;
-      gap: 10px;
+      gap:10px;
+      transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease, background 120ms ease;
       user-select:none;
     }
-    [data-theme="dark"] .btn{ background: rgba(255,255,255,0.05); }
-    .btn:hover{ transform: translateY(-1px); filter: brightness(1.02); }
-    .btn:active{ transform: translateY(1px) scale(0.99); }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(1px) scale(.99); }
 
     .btn.primary{
-      background: linear-gradient(135deg, var(--blue), rgba(56,189,248,0.8));
-      border-color: rgba(37,99,235,0.34);
-      color: white;
-      box-shadow: 0 0 0 rgba(0,0,0,0);
+      background: var(--blue);
+      border-color: rgba(37,99,235,.35);
+      color:#fff;
     }
     .btn.primary:hover{
-      box-shadow: 0 0 26px var(--glow);
-      filter: brightness(1.05);
+      box-shadow: 0 0 22px var(--glow);
+      filter: brightness(1.03);
     }
 
     .btn.danger{
-      background: var(--dangerSoft);
-      border-color: rgba(226,59,87,0.26);
+      border-color: rgba(226,59,87,.28);
+      color: var(--danger);
+    }
+    .btn.icon{
+      width:46px; height:46px;
+      padding:0;
+      justify-content:center;
     }
 
-    .btn.icon{
-      padding: 12px;
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      overflow:hidden;
     }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:16px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .pad{ padding:18px; }
 
     .tabs{
       display:flex;
-      gap: 8px;
-      padding: 8px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: rgba(255,255,255,0.55);
+      gap:8px;
+      background: rgba(37,99,235,.06);
+      border:1px solid rgba(37,99,235,.18);
+      padding:8px;
+      border-radius:999px;
     }
-    [data-theme="dark"] .tabs{ background: rgba(255,255,255,0.05); }
 
     .tab{
       flex:1;
-      padding: 10px 12px;
-      border-radius: 999px;
       border:0;
-      background: transparent;
+      background:transparent;
       cursor:pointer;
-      font-weight: 900;
-      color: var(--muted);
+      padding:10px 12px;
+      border-radius:999px;
+      font-weight:900;
+      color:var(--muted);
       display:flex;
       align-items:center;
       justify-content:center;
-      gap: 8px;
-      transition: 140ms ease;
+      gap:8px;
+      transition:120ms ease;
     }
-    .tab:hover{ background: rgba(0,0,0,0.04); color: var(--text); }
-    [data-theme="dark"] .tab:hover{ background: rgba(255,255,255,0.08); }
-
     .tab.active{
-      color: var(--text);
-      background: rgba(37,99,235,0.10);
-      border: 1px solid rgba(37,99,235,0.22);
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--border);
     }
+    [data-theme="dark"] .tab.active{ background:rgba(255,255,255,.06); }
 
     label{
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 900;
-      margin-left: 4px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      margin-left:4px;
     }
-
     input, textarea{
-      width: 100%;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.65);
-      color: var(--text);
-      outline: none;
-      font-weight: 800;
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:var(--r2);
+      padding:12px 12px;
+      font-weight:800;
+      color:var(--text);
+      background: rgba(0,0,0,.02);
+      outline:none;
     }
-    [data-theme="dark"] input, [data-theme="dark"] textarea{
-      background: rgba(255,255,255,0.05);
+    [data-theme="dark"] input,[data-theme="dark"] textarea{
+      background: rgba(255,255,255,.04);
     }
-    textarea{ min-height: 92px; resize: vertical; font-family: var(--mono); }
+    textarea{ min-height:92px; resize:vertical; font-family:var(--mono); }
 
-    .panel{
-      padding: 18px;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: rgba(255,255,255,0.52);
-      transition: 180ms ease;
-    }
-    [data-theme="dark"] .panel{ background: rgba(255,255,255,0.04); }
-    .panel:hover{ filter: brightness(1.01); }
-
-    .tokenbox{
-      font-family: var(--mono);
-      font-size: 13px;
-      padding: 12px;
-      border-radius: 16px;
-      border: 1px dashed rgba(37,99,235,0.35);
-      background: rgba(37,99,235,0.08);
-      word-break: break-all;
-    }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .col{ display:flex; flex-direction:column; gap:10px; }
 
     .status{
-      font-family: var(--mono);
-      font-size: 12px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.55);
-      color: var(--muted);
-      white-space: pre-wrap;
+      margin-top:12px;
+      padding:10px 12px;
+      border-radius:var(--r2);
+      border:1px solid var(--border);
+      color:var(--muted);
+      font-family:var(--mono);
+      font-size:12px;
+      background: rgba(0,0,0,.02);
     }
-    [data-theme="dark"] .status{ background: rgba(255,255,255,0.05); }
-
-    .divider{ height:1px; background: var(--border); margin: 12px 0; }
-
-    /* Dashboard specifics */
-    .dashHeader{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 10px;
-      padding: 18px;
-    }
-    .dashHeader h2{ margin:0; font-size: 20px; }
-    .dashHeader .sub{ color: var(--muted); font-weight: 800; margin-top: 6px; }
-
-    .gridDash{
-      padding: 0 18px 18px;
-      display:flex;
-      flex-direction:column;
-      gap: 14px;
-    }
-
-    .drop{
-      border: 1px dashed rgba(37,99,235,0.40);
-      background: rgba(37,99,235,0.08);
-      border-radius: 18px;
-      padding: 20px;
-      text-align:center;
-      cursor:pointer;
-      user-select:none;
-      transition: 160ms ease;
-    }
-    .drop:hover{ box-shadow: 0 0 24px var(--glow); }
-    .drop.drag{ transform: scale(1.01); background: rgba(37,99,235,0.12); }
-
-    .files{ display:flex; flex-direction:column; gap: 10px; }
-    .file{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 10px;
-      padding: 12px 12px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.60);
-      animation: popIn 220ms ease both;
-    }
-    [data-theme="dark"] .file{ background: rgba(255,255,255,0.04); }
-    @keyframes popIn{
-      from{ opacity:0; transform: translateY(8px); }
-      to{ opacity:1; transform: translateY(0); }
-    }
-    .file b{
-      font-family: var(--mono);
-      font-size: 13px;
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-      max-width: 520px;
-    }
-    .meta{
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 800;
-    }
+    [data-theme="dark"] .status{ background: rgba(255,255,255,.04); }
 
     .hidden{ display:none !important; }
+
+    /* Dashboard area */
+    .sectionTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .sectionTitle b{ font-size:16px; }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);
+      font-weight:800;
+      font-size:12px;
+      background: rgba(0,0,0,.02);
+    }
+    [data-theme="dark"] .pill{ background: rgba(255,255,255,.04); }
+
+    .drop{
+      border:1px dashed rgba(37,99,235,.35);
+      background: rgba(37,99,235,.06);
+      border-radius:var(--r);
+      padding:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:120ms ease;
+      user-select:none;
+      min-height:82px;
+    }
+    .drop:hover{ box-shadow: 0 0 22px var(--glow); }
+    .drop.drag{ transform: scale(1.01); }
+
+    .files{ display:flex; flex-direction:column; gap:10px; }
+    .file{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 12px;
+      border-radius:var(--r2);
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.01);
+    }
+    [data-theme="dark"] .file{ background: rgba(255,255,255,.04); }
+
+    .fileLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+    .fileLeft b{
+      font-family:var(--mono);
+      font-size:13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:520px;
+    }
+    .meta{
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .tokenBox{
+      border:1px dashed rgba(37,99,235,.35);
+      background: rgba(37,99,235,.06);
+      border-radius:var(--r2);
+      padding:12px;
+      font-family:var(--mono);
+      font-size:13px;
+      word-break: break-all;
+    }
   </style>
 </head>
 
 <body>
   <div class="wrap">
 
+    <div class="top">
+      <div class="brand">
+        <b>Token Vault</b>
+        <span>One project • max 10 files • 2MB each</span>
+      </div>
+      <button id="themeBtn" class="btn icon" title="Theme"><i data-lucide="sun"></i></button>
+    </div>
+
     <!-- AUTH VIEW -->
-    <div id="viewAuth" class="view active">
-      <div class="authGrid">
-        <div class="card pad">
-          <div class="row" style="justify-content:space-between;">
-            <div class="brand">
-              <h1>Token Vault</h1>
-              <small>Register / Login</small>
-            </div>
-            <button id="themeBtn" class="btn icon" title="Theme">
-              <i data-lucide="sun"></i>
-            </button>
-          </div>
-
-          <div class="divider"></div>
-
+    <div id="viewAuth" class="card">
+      <div class="grid">
+        <div class="pad">
           <div class="tabs">
             <button id="tabRegister" class="tab active"><i data-lucide="user-plus"></i> Register</button>
             <button id="tabLogin" class="tab"><i data-lucide="key"></i> Login</button>
           </div>
 
-          <div class="divider"></div>
+          <div style="height:14px"></div>
 
           <div id="panelRegister" class="col">
             <label>Username</label>
             <input id="regUsername" placeholder="altsagent12345" />
             <button id="btnRegister" class="btn primary"><i data-lucide="sparkles"></i> Create</button>
 
-            <div id="regResult" class="col hidden">
-              <div id="regToken" class="tokenbox"></div>
+            <div id="regResult" class="col hidden" style="margin-top:8px">
+              <div id="regToken" class="tokenBox"></div>
               <div class="row">
                 <button id="btnCopyToken" class="btn"><i data-lucide="copy"></i> Copy</button>
                 <button id="btnDownloadToken" class="btn"><i data-lucide="download"></i> token.txt</button>
@@ -358,114 +330,83 @@
             <button id="btnLogin" class="btn primary"><i data-lucide="log-in"></i> Login</button>
           </div>
 
-          <div class="divider"></div>
-          <div id="status" class="status">Ready.</div>
+          <div id="statusAuth" class="status">Ready.</div>
         </div>
 
-        <div class="card pad">
-          <div class="brand">
-            <h1>One Project. Ten Files.</h1>
-            <small>Clean, fast, free plan friendly.</small>
+        <div class="pad">
+          <div class="sectionTitle">
+            <b>Register → Dashboard</b>
+            <span class="pill"><i data-lucide="shield"></i> Token login</span>
           </div>
-          <div class="divider"></div>
-          <div class="panel">
-            <div class="row">
-              <span class="btn primary" style="pointer-events:none;"><i data-lucide="sparkles"></i> Blue Glow</span>
-              <span class="btn" style="pointer-events:none;"><i data-lucide="database"></i> KV Storage</span>
-              <span class="btn" style="pointer-events:none;"><i data-lucide="lock"></i> Token Login</span>
-            </div>
+
+          <div class="file">
+            <div class="fileLeft"><i data-lucide="folder"></i><b>Project required</b></div>
+            <div class="meta">No project → no files</div>
+          </div>
+          <div class="file">
+            <div class="fileLeft"><i data-lucide="files"></i><b>Max 10 files</b></div>
+            <div class="meta">Server enforced</div>
+          </div>
+          <div class="file">
+            <div class="fileLeft"><i data-lucide="database"></i><b>KV only</b></div>
+            <div class="meta">Free plan friendly</div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- DASH VIEW -->
-    <div id="viewDash" class="view">
-      <div class="card">
-        <div class="dashHeader">
-          <div>
-            <h2>Dashboard</h2>
-            <div class="sub" id="dashSubtitle"></div>
+    <div id="viewDash" class="card hidden" style="margin-top:16px;">
+      <div class="pad">
+        <div class="sectionTitle">
+          <div class="row">
+            <span class="pill"><i data-lucide="badge-check"></i> <span id="dashUser">@user</span></span>
+            <span class="pill"><i data-lucide="key-round"></i> <span id="dashTokenShort" style="font-family:var(--mono)"></span></span>
           </div>
+
           <div class="row">
             <button id="btnRun" class="btn primary"><i data-lucide="play"></i> Run</button>
-            <button id="btnBackAuth" class="btn"><i data-lucide="arrow-left"></i> Back</button>
             <button id="btnLogout" class="btn"><i data-lucide="log-out"></i> Logout</button>
-            <button id="themeBtn2" class="btn icon" title="Theme"><i data-lucide="sun"></i></button>
           </div>
         </div>
 
-        <div class="gridDash">
+        <!-- PROJECT GATE -->
+        <div id="projectGate" class="file">
+          <div class="fileLeft"><i data-lucide="folder-plus"></i><b>Create Project</b></div>
+          <button id="btnCreateProject" class="btn primary"><i data-lucide="plus"></i> Create</button>
+        </div>
 
-          <!-- Project Create -->
-          <div id="projectCreateBox" class="panel">
-            <div class="row" style="justify-content:space-between;">
-              <div class="row" style="gap:8px;">
-                <span class="btn" style="pointer-events:none;"><i data-lucide="folder-plus"></i> Project</span>
-                <span class="btn" style="pointer-events:none;"><i data-lucide="files"></i> Max 10 files</span>
-              </div>
-              <button id="btnCreateProject" class="btn primary"><i data-lucide="plus"></i> Create Project</button>
-            </div>
-          </div>
-
-          <!-- Project Files -->
-          <div id="projectFilesBox" class="panel hidden">
-            <div class="row" style="justify-content:space-between;">
-              <div class="row">
-                <span class="btn" style="pointer-events:none;"><i data-lucide="badge-check"></i> <b id="dashUser"></b></span>
-                <span class="btn" style="pointer-events:none;"><i data-lucide="key-round"></i> <span id="dashTokenShort" style="font-family:var(--mono)"></span></span>
-              </div>
-              <div class="row">
-                <button id="btnRefresh" class="btn"><i data-lucide="refresh-ccw"></i> Refresh</button>
-                <button id="btnDeleteAccount" class="btn danger"><i data-lucide="trash-2"></i> Delete</button>
-              </div>
-            </div>
-
-            <input id="filePicker" type="file" multiple class="hidden" />
-
-            <div id="drop" class="drop">
-              <div class="row" style="justify-content:center;">
-                <span class="btn primary" style="pointer-events:none;"><i data-lucide="upload"></i> Upload</span>
-              </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="row" style="justify-content:space-between;">
-              <span class="btn" style="pointer-events:none;"><i data-lucide="files"></i> <b id="fileCount">0</b></span>
-              <span class="btn" style="pointer-events:none;"><i data-lucide="folder"></i> 1 project only</span>
-            </div>
-
-            <div id="files" class="files"></div>
-
-            <div id="deleteBox" class="col hidden" style="margin-top:6px">
-              <input id="deleteConfirm" placeholder="Type: Delete Account" />
-              <div class="row">
-                <button id="btnConfirmDelete" class="btn danger"><i data-lucide="trash"></i> Confirm</button>
-                <button id="btnCancelDelete" class="btn"><i data-lucide="x"></i> Cancel</button>
-              </div>
-            </div>
-
-            <div class="divider"></div>
-            <div id="status2" class="status">Ready.</div>
-          </div>
-
-          <!-- Owner/Admin (optional) -->
-          <div id="ownerBox" class="panel hidden">
-            <div class="row" style="justify-content:space-between;">
-              <span class="btn" style="pointer-events:none;"><i data-lucide="crown"></i> Owner</span>
-              <button id="btnOwnerRefresh" class="btn"><i data-lucide="refresh-ccw"></i> Load Users</button>
-            </div>
-            <div class="divider"></div>
+        <!-- FILES -->
+        <div id="filesArea" class="hidden">
+          <div class="row" style="justify-content:space-between; margin:12px 0;">
+            <span class="pill"><i data-lucide="files"></i> <b id="fileCount">0</b></span>
             <div class="row">
-              <input id="ownerToken" placeholder="Owner token" style="max-width:360px;" />
-              <input id="ownerUsername" placeholder="Username" style="max-width:260px;" />
-              <button id="btnOwnerFiles" class="btn primary"><i data-lucide="search"></i> Files</button>
+              <button id="btnRefresh" class="btn"><i data-lucide="refresh-ccw"></i> Refresh</button>
+              <button id="btnDeleteAccount" class="btn danger"><i data-lucide="trash-2"></i> Delete account</button>
             </div>
-            <div class="divider"></div>
-            <div id="ownerOut" class="files"></div>
           </div>
 
+          <input id="filePicker" type="file" multiple class="hidden" />
+
+          <div id="drop" class="drop">
+            <div class="row">
+              <i data-lucide="upload"></i>
+              <b>Upload files</b>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+          <div id="files" class="files"></div>
+
+          <div id="deleteBox" class="col hidden" style="margin-top:12px">
+            <input id="deleteConfirm" placeholder="Type: Delete Account" />
+            <div class="row">
+              <button id="btnConfirmDelete" class="btn danger"><i data-lucide="trash"></i> Confirm</button>
+              <button id="btnCancelDelete" class="btn"><i data-lucide="x"></i> Cancel</button>
+            </div>
+          </div>
+
+          <div id="statusDash" class="status">Ready.</div>
         </div>
       </div>
     </div>
@@ -474,30 +415,31 @@
 
 <script>
   const MAX_FILE_BYTES = 2 * 1024 * 1024;
-  const MAX_FILES = 10;
 
   const $ = (id) => document.getElementById(id);
+
   const viewAuth = $("viewAuth");
   const viewDash = $("viewDash");
-  const statusAuth = $("status");
-  const statusDash = $("status2");
+
+  const statusAuth = $("statusAuth");
+  const statusDash = $("statusDash");
 
   function setStatus(msg){
     statusAuth.textContent = msg;
-    statusDash.textContent = msg;
-  }
-
-  function shortToken(t){
-    if(!t) return "";
-    const s = String(t).trim();
-    if(s.length <= 14) return s;
-    return s.slice(0, 8) + "…" + s.slice(-6);
+    if(statusDash) statusDash.textContent = msg;
   }
 
   function randomUsername(){
     const prefixes = ["swift","roblox","altsagent"];
     const n = Math.floor(10000 + Math.random() * 90000);
     return `${prefixes[Math.floor(Math.random()*prefixes.length)]}${n}`;
+  }
+
+  function shortToken(t){
+    if(!t) return "";
+    t = String(t).trim();
+    if(t.length <= 14) return t;
+    return t.slice(0,8) + "…" + t.slice(-6);
   }
 
   function saveAuth(token, username){
@@ -515,10 +457,9 @@
     };
   }
 
-  async function api(path, { method="GET", token=null, json=null, form=null, ownerToken=null } = {}){
+  async function api(path, { method="GET", token=null, json=null, form=null } = {}){
     const headers = {};
     if(token) headers["x-auth-token"] = token;
-    if(ownerToken) headers["x-owner-token"] = ownerToken;
 
     let body;
     if(json){
@@ -531,10 +472,10 @@
     const res = await fetch(path, { method, headers, body });
     const text = await res.text();
     let data = null;
-    try { data = text ? JSON.parse(text) : null; } catch { data = { raw: text }; }
+    try { data = text ? JSON.parse(text) : null; } catch { data = { raw:text }; }
 
     if(!res.ok){
-      const msg = (data && data.error) ? data.error : `Request failed (${res.status})`;
+      const msg = data?.error || data?.raw || `Request failed (${res.status})`;
       throw new Error(msg);
     }
     return data;
@@ -557,56 +498,57 @@
     localStorage.setItem("tv_theme", theme);
     const icon = theme === "light" ? "sun" : "moon";
     $("themeBtn").innerHTML = `<i data-lucide="${icon}"></i>`;
-    $("themeBtn2").innerHTML = `<i data-lucide="${icon}"></i>`;
     lucide.createIcons();
   }
 
-  function showView(which){
-    viewAuth.classList.toggle("active", which === "auth");
-    viewDash.classList.toggle("active", which === "dash");
-    lucide.createIcons();
+  function showAuth(){
+    viewAuth.classList.remove("hidden");
+    viewDash.classList.add("hidden");
+    setStatus("Ready.");
   }
 
-  function showTab(which){
-    $("tabRegister").classList.toggle("active", which === "register");
-    $("tabLogin").classList.toggle("active", which === "login");
-    $("panelRegister").classList.toggle("hidden", which !== "register");
-    $("panelLogin").classList.toggle("hidden", which !== "login");
-  }
+  async function showDash(){
+    viewAuth.classList.add("hidden");
+    viewDash.classList.remove("hidden");
 
-  function updateDashHeader(){
     const { token, username } = getAuth();
     $("dashUser").textContent = `@${username || "user"}`;
     $("dashTokenShort").textContent = shortToken(token);
-    $("dashSubtitle").textContent = `Welcome, @${username}.`;
+    lucide.createIcons();
+
+    await syncProjectUI();
   }
 
-  async function loadProjectState(){
+  async function syncProjectUI(){
     const { token } = getAuth();
+    setStatus("Loading...");
     const data = await api("/api/project", { method:"GET", token });
-    const hasProject = !!data?.project;
-    $("projectCreateBox").classList.toggle("hidden", hasProject);
-    $("projectFilesBox").classList.toggle("hidden", !hasProject);
+    const hasProject = !!data.project;
+
+    $("projectGate").classList.toggle("hidden", hasProject);
+    $("filesArea").classList.toggle("hidden", !hasProject);
 
     if(hasProject){
       await refreshFiles(true);
     }else{
       $("files").innerHTML = "";
       $("fileCount").textContent = "0";
+      setStatus("Ready.");
     }
   }
 
-  function formatKB(bytes){
+  function fmtKB(bytes){
     return `${(bytes/1024).toFixed(1)}KB`;
   }
 
-  function fileRow({ filename, meta }){
-    const div = document.createElement("div");
-    div.className = "file";
+  function renderFileRow(item){
+    const { filename, meta } = item;
+
+    const row = document.createElement("div");
+    row.className = "file";
 
     const left = document.createElement("div");
-    left.className = "row";
-    left.style.gap = "10px";
+    left.className = "fileLeft";
     left.innerHTML = `<i data-lucide="file"></i><b title="${filename}">${filename}</b>`;
 
     const right = document.createElement("div");
@@ -614,27 +556,19 @@
 
     const metaEl = document.createElement("div");
     metaEl.className = "meta";
-    if(meta){
-      metaEl.textContent = `${formatKB(meta.size||0)} • ${(meta.type||"file")}`;
-    }else{
-      metaEl.textContent = "—";
-    }
+    metaEl.textContent = meta ? `${fmtKB(meta.size||0)} • ${meta.type||"file"}` : "—";
 
-    const dl = document.createElement("button");
-    dl.className = "btn";
-    dl.style.padding = "10px 12px";
-    dl.innerHTML = `<i data-lucide="download"></i>`;
-    dl.onclick = async () => {
+    const btnDl = document.createElement("button");
+    btnDl.className = "btn";
+    btnDl.innerHTML = `<i data-lucide="download"></i>`;
+    btnDl.onclick = async () => {
       try{
         const { token } = getAuth();
         setStatus("Downloading...");
         const res = await fetch(`/api/download-file?filename=${encodeURIComponent(filename)}`, {
           headers: { "x-auth-token": token }
         });
-        if(!res.ok){
-          const t = await res.text();
-          throw new Error(t || "Download failed");
-        }
+        if(!res.ok) throw new Error(await res.text() || "Download failed");
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -644,49 +578,46 @@
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        setStatus("Downloaded.");
+        setStatus("Ready.");
       }catch(e){
-        setStatus("Download failed: " + e.message);
+        setStatus("Download failed.");
         alert(e.message);
       }
     };
 
-    const del = document.createElement("button");
-    del.className = "btn danger";
-    del.style.padding = "10px 12px";
-    del.innerHTML = `<i data-lucide="trash-2"></i>`;
-    del.onclick = async () => {
-      if(!confirm(`Delete "${filename}" ?`)) return;
+    const btnDel = document.createElement("button");
+    btnDel.className = "btn danger";
+    btnDel.innerHTML = `<i data-lucide="trash-2"></i>`;
+    btnDel.onclick = async () => {
+      if(!confirm(`Delete "${filename}"?`)) return;
       try{
         const { token } = getAuth();
         setStatus("Deleting...");
         await api("/api/delete-file", { method:"DELETE", token, json:{ filename } });
         await refreshFiles(true);
-        setStatus("Deleted.");
+        setStatus("Ready.");
       }catch(e){
-        setStatus("Delete failed: " + e.message);
+        setStatus("Delete failed.");
         alert(e.message);
       }
     };
 
     right.appendChild(metaEl);
-    right.appendChild(dl);
-    right.appendChild(del);
+    right.appendChild(btnDl);
+    right.appendChild(btnDel);
 
-    div.appendChild(left);
-    div.appendChild(right);
-    return div;
+    row.appendChild(left);
+    row.appendChild(right);
+    return row;
   }
 
-  async function refreshFiles(withRetry=false){
+  async function refreshFiles(retry=false){
     const { token } = getAuth();
-    if(!token) return;
-
     setStatus("Loading files...");
     let data = await api("/api/files-list", { method:"GET", token });
 
-    // KV can be slightly delayed after upload — quick retry helps
-    if(withRetry && Array.isArray(data.files) && data.files.length === 0){
+    // KV can lag right after upload → tiny retry helps
+    if(retry && Array.isArray(data.files) && data.files.length === 0){
       await new Promise(r => setTimeout(r, 350));
       data = await api("/api/files-list", { method:"GET", token });
     }
@@ -694,17 +625,17 @@
     const list = data.files || [];
     $("fileCount").textContent = String(list.length);
 
-    const container = $("files");
-    container.innerHTML = "";
+    const box = $("files");
+    box.innerHTML = "";
 
     if(list.length === 0){
       const empty = document.createElement("div");
       empty.className = "file";
-      empty.innerHTML = `<div class="row"><i data-lucide="inbox"></i><b>No files</b></div>`;
-      container.appendChild(empty);
+      empty.innerHTML = `<div class="fileLeft"><i data-lucide="inbox"></i><b>No files</b></div>`;
+      box.appendChild(empty);
     }else{
       for(const item of list){
-        container.appendChild(fileRow(item));
+        box.appendChild(renderFileRow(item));
       }
     }
 
@@ -719,35 +650,39 @@
     const tooBig = [...files].find(f => f.size > MAX_FILE_BYTES);
     if(tooBig) throw new Error(`"${tooBig.name}" > 2MB`);
 
+    setStatus("Uploading...");
     const form = new FormData();
     for(const f of files) form.append("files", f, f.name);
 
-    setStatus("Uploading...");
-    const data = await api("/api/upload-file", { method:"POST", token, form });
-    if(data.rejected && data.rejected.length){
-      alert("Some files rejected:\n" + data.rejected.map(x => `${x.name}: ${x.reason}`).join("\n"));
-    }
+    await api("/api/upload-file", { method:"POST", token, form });
     await refreshFiles(true);
-    setStatus("Uploaded.");
+    setStatus("Ready.");
   }
 
+  // ---------- UI Wiring ----------
   (function init(){
-    const savedTheme = localStorage.getItem("tv_theme") || "light";
-    applyTheme(savedTheme);
+    applyTheme(localStorage.getItem("tv_theme") || "light");
 
     $("themeBtn").onclick = () => {
       const cur = document.documentElement.getAttribute("data-theme") || "light";
       applyTheme(cur === "light" ? "dark" : "light");
     };
-    $("themeBtn2").onclick = () => {
-      const cur = document.documentElement.getAttribute("data-theme") || "light";
-      applyTheme(cur === "light" ? "dark" : "light");
-    };
-
-    $("tabRegister").onclick = () => showTab("register");
-    $("tabLogin").onclick = () => showTab("login");
 
     $("regUsername").value = randomUsername();
+
+    $("tabRegister").onclick = () => {
+      $("tabRegister").classList.add("active");
+      $("tabLogin").classList.remove("active");
+      $("panelRegister").classList.remove("hidden");
+      $("panelLogin").classList.add("hidden");
+    };
+
+    $("tabLogin").onclick = () => {
+      $("tabLogin").classList.add("active");
+      $("tabRegister").classList.remove("active");
+      $("panelLogin").classList.remove("hidden");
+      $("panelRegister").classList.add("hidden");
+    };
 
     $("btnRegister").onclick = async () => {
       try{
@@ -759,12 +694,9 @@
         $("regResult").classList.remove("hidden");
 
         saveAuth(data.token, data.username);
-        updateDashHeader();
-        showView("dash");
-        await loadProjectState();
         setStatus("Ready.");
       }catch(e){
-        setStatus("Register failed: " + e.message);
+        setStatus("Register failed.");
         alert(e.message);
       }
     };
@@ -784,9 +716,7 @@
     };
 
     $("btnGoDashFromReg").onclick = async () => {
-      updateDashHeader();
-      showView("dash");
-      await loadProjectState();
+      try{ await showDash(); } catch(e){ alert(e.message); }
     };
 
     $("btnLogin").onclick = async () => {
@@ -796,34 +726,26 @@
         setStatus("Logging in...");
         const data = await api("/api/login", { method:"POST", json:{ token } });
         saveAuth(token, data.username);
-
-        updateDashHeader();
-        showView("dash");
-        await loadProjectState();
-        setStatus("Ready.");
+        await showDash();
       }catch(e){
-        setStatus("Login failed: " + e.message);
+        setStatus("Login failed.");
         alert(e.message);
       }
     };
 
-    $("btnBackAuth").onclick = () => showView("auth");
-
     $("btnLogout").onclick = () => {
       clearAuth();
-      showView("auth");
-      setStatus("Ready.");
+      showAuth();
     };
 
     $("btnCreateProject").onclick = async () => {
       try{
         const { token } = getAuth();
-        setStatus("Creating project...");
+        setStatus("Creating...");
         await api("/api/create-project", { method:"POST", token, json:{ name:"My Project" } });
-        await loadProjectState();
-        setStatus("Ready.");
+        await syncProjectUI();
       }catch(e){
-        setStatus("Create failed: " + e.message);
+        setStatus("Create failed.");
         alert(e.message);
       }
     };
@@ -832,45 +754,18 @@
       try{ await refreshFiles(false); }catch(e){ alert(e.message); }
     };
 
-    // Run button → webhook via backend
     $("btnRun").onclick = async () => {
       try{
         const { token } = getAuth();
         setStatus("Running...");
         await api("/api/run", { method:"POST", token });
-        setStatus("Run sent.");
+        setStatus("Ready.");
       }catch(e){
-        setStatus("Run failed: " + e.message);
+        setStatus("Run failed.");
         alert(e.message);
       }
     };
 
-    // Upload zone
-    const drop = $("drop");
-    const picker = $("filePicker");
-
-    drop.onclick = () => picker.click();
-
-    drop.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      drop.classList.add("drag");
-    });
-    drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
-    drop.addEventListener("drop", async (e) => {
-      e.preventDefault();
-      drop.classList.remove("drag");
-      const files = e.dataTransfer.files;
-      if(!files || files.length === 0) return;
-      try{ await uploadFiles(files); }catch(err){ alert(err.message); }
-    });
-
-    picker.addEventListener("change", async () => {
-      if(!picker.files || picker.files.length === 0) return;
-      try{ await uploadFiles(picker.files); }catch(err){ alert(err.message); }
-      picker.value = "";
-    });
-
-    // Delete account
     $("btnDeleteAccount").onclick = () => {
       $("deleteBox").classList.remove("hidden");
       $("deleteConfirm").value = "";
@@ -885,65 +780,44 @@
         setStatus("Deleting...");
         await api("/api/delete-account", { method:"DELETE", json:{ token } });
         clearAuth();
-        showView("auth");
-        setStatus("Ready.");
+        showAuth();
       }catch(e){
-        setStatus("Delete failed: " + e.message);
+        setStatus("Delete failed.");
         alert(e.message);
       }
     };
 
-    // Owner/admin panel: show if user fills owner token (optional)
-    $("btnOwnerRefresh").onclick = async () => {
-      try{
-        const ownerToken = $("ownerToken").value.trim();
-        if(!ownerToken) throw new Error("Owner token required");
-        const data = await api("/api/admin-users", { method:"GET", ownerToken });
-        $("ownerOut").innerHTML = data.users.map(u => `
-          <div class="file">
-            <div class="row"><i data-lucide="user"></i><b>${u}</b></div>
-          </div>
-        `).join("");
-        lucide.createIcons();
-      }catch(e){ alert(e.message); }
-    };
+    // Upload
+    const drop = $("drop");
+    const picker = $("filePicker");
 
-    $("btnOwnerFiles").onclick = async () => {
-      try{
-        const ownerToken = $("ownerToken").value.trim();
-        const username = $("ownerUsername").value.trim();
-        if(!ownerToken || !username) throw new Error("Owner token + username required");
-        const data = await api(`/api/admin-files?username=${encodeURIComponent(username)}`, { method:"GET", ownerToken });
-        $("ownerOut").innerHTML = (data.files||[]).map(f => `
-          <div class="file">
-            <div class="row"><i data-lucide="file"></i><b>${f.filename}</b></div>
-            <div class="row">
-              <span class="meta">${(f.meta?.size||0)/1024}</span>
-              <button class="btn" onclick="window.open('/api/admin-download?username=${encodeURIComponent(username)}&filename=${encodeURIComponent(f.filename)}','_blank')">
-                <i data-lucide="download"></i>
-              </button>
-            </div>
-          </div>
-        `).join("") || `<div class="file"><div class="row"><i data-lucide="inbox"></i><b>No files</b></div></div>`;
-        lucide.createIcons();
-      }catch(e){ alert(e.message); }
-    };
+    drop.onclick = () => picker.click();
+    drop.addEventListener("dragover", (e)=>{ e.preventDefault(); drop.classList.add("drag"); });
+    drop.addEventListener("dragleave", ()=> drop.classList.remove("drag"));
+    drop.addEventListener("drop", async (e)=>{
+      e.preventDefault();
+      drop.classList.remove("drag");
+      if(!e.dataTransfer.files?.length) return;
+      try{ await uploadFiles(e.dataTransfer.files); }catch(err){ alert(err.message); }
+    });
+
+    picker.addEventListener("change", async ()=>{
+      if(!picker.files?.length) return;
+      try{ await uploadFiles(picker.files); }catch(err){ alert(err.message); }
+      picker.value = "";
+    });
 
     // Auto-login
     const auth = getAuth();
     if(auth.token){
       api("/api/login", { method:"POST", json:{ token: auth.token } })
-        .then(async (data) => {
+        .then(async (data)=>{
           saveAuth(auth.token, data.username);
-          updateDashHeader();
-          showView("dash");
-          await loadProjectState();
-          setStatus("Ready.");
+          await showDash();
         })
-        .catch(() => {
-          clearAuth();
-          showView("auth");
-        });
+        .catch(()=>{ clearAuth(); showAuth(); });
+    }else{
+      showAuth();
     }
 
     lucide.createIcons();
