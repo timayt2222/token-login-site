@@ -11,26 +11,26 @@ export async function onRequestPost({ request, env }) {
     const username = await env.TOKENS.get(token);
     if (!username) return jerr("Invalid token.", 401);
 
-    const projRaw = await env.TOKENS.get(`${token}/project`);
-    if (!projRaw) return jerr("No project. Create project first.", 403);
+    // Must have a project
+    const project = await env.TOKENS.get(`${token}/project`);
+    if (!project) return jerr("No project. Create a project first.", 403);
 
-    // count existing files
-    const metaPrefix = `${token}/p/meta/`;
-    const existingCount = await countKeys(env.TOKENS, metaPrefix);
+    // Count existing files (support both layouts)
+    const countA = await countKeys(env.TOKENS, `${token}/meta/`);
+    const countB = await countKeys(env.TOKENS, `${token}/p/meta/`);
+    const existing = Math.max(countA, countB);
 
     const form = await request.formData();
     const files = form.getAll("files");
-    if (!files || files.length === 0) return jerr("No files.", 400);
+    if (!files || files.length === 0) return jerr("No files received (field must be 'files').", 400);
 
-    const saved = [];
-    const rejected = [];
-
-    // enforce max 10 total
-    const allowedSlots = Math.max(0, MAX_FILES - existingCount);
+    const allowedSlots = Math.max(0, MAX_FILES - existing);
     if (allowedSlots <= 0) {
       return j({ saved: [], rejected: files.map(f => ({ name: f?.name || "file", reason: "Max 10 files reached." })) });
     }
 
+    const saved = [];
+    const rejected = [];
     let savedNow = 0;
 
     for (const f of files) {
@@ -40,15 +40,16 @@ export async function onRequestPost({ request, env }) {
 
       if (!filename) { rejected.push({ name: f?.name || "(missing)", reason: "Bad filename" }); continue; }
       if (size > MAX_FILE_BYTES) { rejected.push({ name: filename, reason: "Over 2MB" }); continue; }
-
-      if (savedNow >= allowedSlots) {
-        rejected.push({ name: filename, reason: "Max 10 files reached" });
-        continue;
-      }
+      if (savedNow >= allowedSlots) { rejected.push({ name: filename, reason: "Max 10 files reached" }); continue; }
 
       const ab = await f.arrayBuffer();
       const b64 = arrayBufferToBase64(ab);
 
+      // ✅ Save to ORIGINAL layout (matches your “spec”)
+      await env.TOKENS.put(`${token}/files/${filename}`, b64);
+      await env.TOKENS.put(`${token}/meta/${filename}`, JSON.stringify({ size, type, uploadedAt: Date.now() }));
+
+      // ✅ ALSO save to /p/ layout for compatibility (optional but helpful)
       await env.TOKENS.put(`${token}/p/files/${filename}`, b64);
       await env.TOKENS.put(`${token}/p/meta/${filename}`, JSON.stringify({ size, type, uploadedAt: Date.now() }));
 
@@ -82,7 +83,7 @@ function arrayBufferToBase64(arrayBuffer) {
 }
 
 async function countKeys(kv, prefix){
-  let cursor = undefined;
+  let cursor;
   let count = 0;
   do{
     const listed = await kv.list({ prefix, cursor });
