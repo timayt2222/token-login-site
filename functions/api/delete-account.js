@@ -1,28 +1,38 @@
-export const onRequestDelete = async ({ request, env }) => {
-  const { token } = await request.json();
-  if (!token) {
-    return new Response(JSON.stringify({ error: "Token required" }), { status: 400 });
+export async function onRequestDelete({ request, env }) {
+  try {
+    if (!env.TOKENS) return jerr("KV binding TOKENS missing.", 500);
+
+    const body = await request.json().catch(() => null);
+    const token = (body?.token || "").trim();
+    if (!token) return jerr("token required", 400);
+
+    const username = await env.TOKENS.get(token);
+    if (!username) return jerr("Invalid token", 401);
+
+    // delete all under token/
+    await deletePrefix(env.TOKENS, `${token}/`);
+
+    // delete main token and username map
+    await env.TOKENS.delete(token);
+    await env.TOKENS.delete(`user/${username}`);
+
+    return j({ ok:true });
+  } catch (e) {
+    return jerr(e?.message || "Delete account failed.", 500);
   }
+}
 
-  const username = await env.TOKENS.get(token);
-  if (!username) {
-    return new Response(JSON.stringify({ error: "Invalid token" }), { status: 401 });
-  }
-
-  // remove token
-  await env.TOKENS.delete(token);
-
-  // remove all files+meta under token
-  let cursor;
-  do {
-    const result = await env.TOKENS.list({ prefix: `${token}/`, cursor });
-    for (const key of result.keys) {
-      await env.TOKENS.delete(key.name);
+async function deletePrefix(kv, prefix){
+  let cursor = undefined;
+  do{
+    const listed = await kv.list({ prefix, cursor });
+    cursor = listed.cursor;
+    for(const k of listed.keys){
+      await kv.delete(k.name);
     }
-    cursor = result.truncated ? result.cursor : null;
-  } while (cursor);
+    if (listed.list_complete) break;
+  }while(cursor);
+}
 
-  return new Response(JSON.stringify({ success: true }), {
-    headers: { "Content-Type": "application/json" }
-  });
-};
+const j = (d, s=200) => new Response(JSON.stringify(d), { status:s, headers:{ "content-type":"application/json" }});
+const jerr = (m, s=400) => j({ error:m }, s);
