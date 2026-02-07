@@ -1,955 +1,929 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Alts Hosting</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Token Vault</title>
 
-  <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
+  <!-- Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
     :root{
-      --bg:#f6f8ff;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --border:#e2e8f0;
-
-      --blue:#2563eb;
-      --blue2:#1d4ed8;
-      --glow:0 0 16px rgba(37,99,235,.45);
-
-      --danger:#dc2626;
-      --dangerBg:rgba(220,38,38,.08);
-
-      --shadow:0 14px 60px rgba(2,6,23,.08);
-      --radius:18px;
-    }
-    body.dark{
-      --bg:#0b1220;
-      --card:#111b2f;
-      --text:#e5e7eb;
-      --muted:#9aa4b2;
-      --border:#22314f;
-
-      --shadow:0 20px 70px rgba(0,0,0,.35);
+      --bg: #0b0f17;
+      --panel: rgba(255,255,255,0.06);
+      --panel2: rgba(255,255,255,0.08);
+      --text: #e9eefc;
+      --muted: rgba(233,238,252,0.7);
+      --border: rgba(233,238,252,0.14);
+      --shadow: 0 20px 60px rgba(0,0,0,0.45);
+      --accent: #7c5cff;
+      --accent2: #33d6ff;
+      --danger: #ff4d6d;
+      --ok: #33ff88;
+      --warn: #ffd166;
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
 
-    *{box-sizing:border-box}
+    [data-theme="light"]{
+      --bg: #f6f7fb;
+      --panel: rgba(0,0,0,0.04);
+      --panel2: rgba(0,0,0,0.06);
+      --text: #121826;
+      --muted: rgba(18,24,38,0.65);
+      --border: rgba(18,24,38,0.12);
+      --shadow: 0 20px 60px rgba(10,20,40,0.12);
+      --accent: #5b5cff;
+      --accent2: #00a3d1;
+      --danger: #e23b57;
+      --ok: #00b86b;
+      --warn: #c48a00;
+    }
+
+    *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background:var(--bg);
-      color:var(--text);
-      transition:.2s background, .2s color;
-    }
-    .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      padding:26px 18px;
+      font-family: var(--sans);
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(124,92,255,0.35), transparent 60%),
+                  radial-gradient(1100px 650px at 90% 0%, rgba(51,214,255,0.25), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 28px;
     }
 
-    .row{display:flex; gap:18px; align-items:stretch}
-    @media (max-width: 920px){
-      .row{flex-direction:column}
+    .app{
+      width: min(1100px, 100%);
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 980px){
+      .app{ grid-template-columns: 1fr; }
     }
 
     .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       overflow:hidden;
     }
-    .cardHeader{
-      padding:16px 18px;
-      border-bottom:1px solid var(--border);
+
+    .sidebar{
+      padding: 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+    }
+
+    .brand{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
+      gap: 10px;
+      padding: 10px 10px 4px;
     }
-    .cardTitle{
-      font-weight:900;
-      font-size:18px;
-      letter-spacing:.2px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .cardBody{padding:16px 18px}
 
-    .muted{color:var(--muted); font-weight:700}
-    .bigTitle{font-size:26px; font-weight:950; margin:0}
-    .sub{margin:8px 0 0; color:var(--muted); font-weight:700}
+    .brand h1{
+      font-size: 18px;
+      margin: 0;
+      letter-spacing: 0.2px;
+    }
 
-    .btn{
-      cursor:pointer;
-      border:1px solid transparent;
-      padding:10px 14px;
-      border-radius:14px;
-      font-weight:900;
-      display:inline-flex;
-      align-items:center;
-      gap:9px;
-      transition:.15s transform, .15s background, .15s border-color, .15s box-shadow;
-      user-select:none;
+    .sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
     }
-    .btn svg{width:18px;height:18px}
-    .btn:hover{transform:translateY(-2px)}
-    .btnBlue{
-      background:var(--blue);
-      color:white;
-      box-shadow:var(--glow);
-    }
-    .btnBlue:hover{background:var(--blue2)}
-    .btnGhost{
-      background:transparent;
-      color:var(--text);
-      border-color:var(--border);
-    }
-    .btnGhost:hover{background:rgba(37,99,235,.08); border-color:rgba(37,99,235,.25)}
-    .btnDanger{
-      background:transparent;
-      color:var(--danger);
-      border-color:rgba(220,38,38,.35);
-    }
-    .btnDanger:hover{background:var(--dangerBg); border-color:rgba(220,38,38,.55)}
 
     .pill{
       display:inline-flex;
       align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      font-weight:900;
-      color:var(--muted);
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      font-size: 12px;
+      user-select:none;
     }
 
-    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
-    @media (max-width: 740px){.grid2{grid-template-columns:1fr}}
-
-    textarea, input{
-      width:100%;
-      background:transparent;
-      color:var(--text);
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:11px 12px;
-      outline:none;
-      font-weight:750;
-      font-size:14px;
+    .tabs{
+      display:flex;
+      gap: 8px;
+      padding: 10px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 999px;
     }
-    textarea{min-height:88px; resize:vertical}
-    input:focus, textarea:focus{border-color:rgba(37,99,235,.55); box-shadow:0 0 0 4px rgba(37,99,235,.12)}
 
-    .tabs{display:flex; gap:10px; flex-wrap:wrap}
-    .tabBtn{flex:1; justify-content:center}
+    .tab{
+      flex:1;
+      border: 0;
+      cursor:pointer;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 650;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 8px;
+      transition: 150ms ease;
+    }
+    .tab:hover{ background: rgba(255,255,255,0.06); color: var(--text); }
+    .tab.active{
+      background: rgba(124,92,255,0.22);
+      color: var(--text);
+      border: 1px solid rgba(124,92,255,0.30);
+    }
+
+    .btn{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor:pointer;
+      transition: 150ms ease;
+      font-weight: 700;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.07); }
+    .btn:disabled{ opacity:0.55; cursor:not-allowed; transform:none; }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,0.95), rgba(51,214,255,0.55));
+      border: 1px solid rgba(124,92,255,0.4);
+    }
+    .btn.danger{
+      background: rgba(255,77,109,0.12);
+      border-color: rgba(255,77,109,0.25);
+      color: var(--text);
+    }
+    .btn.ghost{
+      background: transparent;
+    }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .col{ display:flex; flex-direction:column; gap:10px; }
+
+    label{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    input, textarea{
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      outline: none;
+      font-weight: 650;
+    }
+    textarea{ min-height: 86px; resize: vertical; font-family: var(--mono); font-weight: 700; }
+    input::placeholder, textarea::placeholder{ color: rgba(233,238,252,0.45); }
+
+    .main{
+      padding: 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+      min-height: 520px;
+    }
+
+    .header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 6px 6px 0;
+    }
+
+    .header h2{
+      margin:0;
+      font-size: 18px;
+    }
+    .header p{
+      margin:6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .status{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
 
     .divider{
       height:1px;
-      background:var(--border);
-      margin:14px 0;
+      background: var(--border);
+      margin: 4px 0;
     }
 
-    .screen{display:none}
-    .screen.active{display:block}
+    .hidden{ display:none !important; }
 
-    /* Dashboard layout */
-    .sidebar{
-      width:290px;
-      min-width:290px;
-      padding:14px;
-    }
-    @media (max-width: 920px){
-      .sidebar{width:auto; min-width:unset}
-    }
-    .navBtn{
-      width:100%;
-      justify-content:flex-start;
-      margin-top:10px;
-    }
-    .navBtn.active{
-      background:rgba(37,99,235,.12);
-      border-color:rgba(37,99,235,.25);
-      box-shadow:none;
+    .tokenbox{
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px dashed rgba(124,92,255,0.55);
+      background: rgba(124,92,255,0.10);
+      word-break: break-all;
     }
 
-    .fileBox{
-      border:1.8px dashed var(--border);
-      border-radius:16px;
-      padding:16px;
-      text-align:center;
-      color:var(--muted);
-      font-weight:900;
-      cursor:pointer;
-      transition:.15s;
-      margin-top:12px;
-    }
-    .fileBox:hover{background:rgba(37,99,235,.06)}
-    .fileBox.drag{background:rgba(37,99,235,.10); border-color:rgba(37,99,235,.45)}
-
-    .fileList{list-style:none; padding:0; margin:12px 0 0}
-    .fileItem{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 0;
-      border-bottom:1px solid var(--border);
-    }
-    .fileName{font-weight:900; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-    .fileMeta{color:var(--muted); font-weight:800; font-size:12px}
-    .miniBtn{
-      padding:8px 10px;
-      border-radius:12px;
-      font-weight:900;
-    }
-
-    .toast{
-      margin-top:10px;
-      font-weight:900;
-      color:var(--muted);
-      min-height:20px;
-      white-space:pre-wrap;
-    }
-
-    .topActions{
+    .dashTop{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      margin-bottom:16px;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+
+    .project{
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    .drop{
+      border: 1px dashed rgba(51,214,255,0.45);
+      background: rgba(51,214,255,0.10);
+      border-radius: 16px;
+      padding: 18px;
+      text-align:center;
+      transition: 120ms ease;
+      cursor:pointer;
+      user-select:none;
+    }
+    .drop.drag{
+      transform: scale(1.01);
+      background: rgba(51,214,255,0.16);
+    }
+    .drop strong{ display:block; font-size: 14px; }
+    .drop span{ display:block; color: var(--muted); font-size: 12px; margin-top: 6px; }
+
+    .files{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    .file{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+    }
+    .file .name{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .file .name b{
+      font-family: var(--mono);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      max-width: 520px;
+    }
+    .file .meta{
+      color: var(--muted);
+      font-size: 12px;
+      font-family: var(--mono);
+    }
+
+    .toast{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      font-size: 12px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+    }
+    .toast.ok{ border-color: rgba(0,184,107,0.35); background: rgba(0,184,107,0.10); color: var(--text); }
+    .toast.err{ border-color: rgba(226,59,87,0.35); background: rgba(226,59,87,0.10); color: var(--text); }
+    .toast.warn{ border-color: rgba(196,138,0,0.30); background: rgba(196,138,0,0.10); color: var(--text); }
+
+    .small{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-
-    <!-- AUTH SCREEN -->
-    <div id="authScreen" class="screen active">
-      <div class="card">
-        <div class="cardHeader">
-          <div class="cardTitle">
-            <i data-lucide="shield-check"></i>
-            Alts Hosting
-          </div>
-
-          <button id="themeBtnA" class="btn btnGhost" title="Toggle theme">
-            <i id="themeIconA" data-lucide="moon"></i>
-            Theme
-          </button>
+  <div class="app">
+    <!-- Sidebar -->
+    <div class="card sidebar">
+      <div class="brand">
+        <div>
+          <h1>Token Vault</h1>
+          <div class="sub">Cloudflare Pages + KV • no R2 • free vibes</div>
         </div>
 
-        <div class="cardBody">
-          <h1 class="bigTitle">Register or Log In</h1>
-          <p class="sub">Register generates a token. Log in by pasting your token (or token.txt).</p>
+        <button id="themeBtn" class="btn ghost" title="Toggle theme" style="padding:10px 12px;border-radius:14px;">
+          <i data-lucide="moon"></i>
+        </button>
+      </div>
 
+      <div class="pill">
+        <i data-lucide="zap"></i>
+        <span><b>2MB</b> per file • stored in KV (base64)</span>
+      </div>
+
+      <div class="tabs">
+        <button id="tabRegister" class="tab active"><i data-lucide="user-plus"></i> Register</button>
+        <button id="tabLogin" class="tab"><i data-lucide="key"></i> Login</button>
+      </div>
+
+      <div id="panelRegister" class="col">
+        <div class="col">
+          <label>Username (auto)</label>
+          <input id="regUsername" placeholder="altsagent12345" />
+          <button id="btnRegister" class="btn primary"><i data-lucide="sparkles"></i> Create account</button>
+        </div>
+
+        <div id="regResult" class="col hidden">
           <div class="divider"></div>
-
-          <div class="tabs">
-            <button id="tabRegister" class="btn btnBlue tabBtn">
-              <i data-lucide="circle-pound-sterling"></i>
-              Register
-            </button>
-            <button id="tabLogin" class="btn btnGhost tabBtn">
-              <i data-lucide="log-in"></i>
-              Log In
-            </button>
+          <div class="small">Here’s your token. Save it — it’s your login.</div>
+          <div id="regToken" class="tokenbox"></div>
+          <div class="row">
+            <button id="btnCopyToken" class="btn"><i data-lucide="copy"></i> Copy</button>
+            <button id="btnDownloadToken" class="btn"><i data-lucide="download"></i> token.txt</button>
+            <button id="btnGoDashFromReg" class="btn primary"><i data-lucide="layout-dashboard"></i> Dashboard</button>
           </div>
-
-          <div class="divider"></div>
-
-          <!-- Register -->
-          <div id="registerPane">
-            <div class="grid2">
-              <div class="card" style="box-shadow:none">
-                <div class="cardBody">
-                  <div class="muted">Step 1</div>
-                  <div style="font-weight:950; font-size:18px; margin-top:4px;">Generate your account token</div>
-                  <p class="sub" style="margin-top:6px">Username will be random: swift#####, roblox#####, altsagent#####</p>
-
-                  <button id="btnRegister" class="btn btnBlue" style="width:100%; justify-content:center; margin-top:10px;">
-                    <i data-lucide="circle-pound-sterling"></i>
-                    Generate Token
-                  </button>
-
-                  <div id="regToast" class="toast"></div>
-                </div>
-              </div>
-
-              <div class="card" style="box-shadow:none">
-                <div class="cardBody">
-                  <div class="muted">Your Token</div>
-                  <textarea id="regToken" readonly placeholder="Token will appear here..." style="margin-top:8px;"></textarea>
-
-                  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-                    <button id="btnCopyToken" class="btn btnGhost" disabled>
-                      <i data-lucide="clipboard"></i>
-                      Copy
-                    </button>
-                    <button id="btnDownloadToken" class="btn btnGhost" disabled>
-                      <i data-lucide="download"></i>
-                      Download .txt
-                    </button>
-                    <button id="btnGoDashboardFromReg" class="btn btnBlue" disabled>
-                      <i data-lucide="arrow-right"></i>
-                      Go Dashboard
-                    </button>
-                  </div>
-
-                  <div class="toast" id="regTokenToast"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Login -->
-          <div id="loginPane" style="display:none;">
-            <div class="grid2">
-              <div class="card" style="box-shadow:none">
-                <div class="cardBody">
-                  <div class="muted">Paste token</div>
-                  <textarea id="loginToken" placeholder="Paste your token here..."></textarea>
-
-                  <button id="btnLogin" class="btn btnBlue" style="width:100%; justify-content:center; margin-top:10px;">
-                    <i data-lucide="log-in"></i>
-                    Log In
-                  </button>
-
-                  <div id="loginToast" class="toast"></div>
-                </div>
-              </div>
-
-              <div class="card" style="box-shadow:none">
-                <div class="cardBody">
-                  <div class="muted">Tip</div>
-                  <div style="font-weight:950; font-size:18px; margin-top:4px;">Use token.txt</div>
-                  <p class="sub">If you downloaded token.txt, open it and paste the token here.</p>
-                  <div class="divider"></div>
-                  <div class="pill">
-                    <i data-lucide="sparkles"></i>
-                    Auto-login is enabled (saved in browser)
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
+
+      <div id="panelLogin" class="col hidden">
+        <div class="col">
+          <label>Token</label>
+          <textarea id="loginToken" placeholder="Paste token here..."></textarea>
+          <button id="btnLogin" class="btn primary"><i data-lucide="log-in"></i> Login</button>
+          <div class="small">Tip: token is saved in your browser after login (localStorage).</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div id="authMini" class="col hidden">
+        <div class="toast ok">
+          <i data-lucide="badge-check"></i>
+          <div>
+            <div><b id="authUser">Logged in</b></div>
+            <div class="small" id="authTokenShort"></div>
+          </div>
+        </div>
+        <div class="row">
+          <button id="btnLogout" class="btn"><i data-lucide="log-out"></i> Logout</button>
+          <button id="btnGoDash" class="btn primary"><i data-lucide="layout-dashboard"></i> Dashboard</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div id="status" class="status">Ready.</div>
     </div>
 
-    <!-- DASHBOARD SCREEN -->
-    <div id="dashScreen" class="screen">
-      <div class="row">
+    <!-- Main -->
+    <div class="card main">
+      <div class="header">
+        <div>
+          <h2 id="mainTitle">Welcome</h2>
+          <p id="mainDesc">Register or login with your token. Then manage your one-and-only project dashboard.</p>
+        </div>
+        <div class="pill">
+          <i data-lucide="cloud"></i>
+          <span>Cloudflare Free Plan friendly</span>
+        </div>
+      </div>
 
-        <!-- Sidebar -->
-        <div class="card sidebar">
-          <div class="cardHeader" style="border-bottom:none; padding-bottom:10px;">
-            <div class="cardTitle">
-              <i data-lucide="layout-dashboard"></i>
-              Dashboard
+      <div id="welcomeArea" class="project">
+        <div class="toast warn">
+          <i data-lucide="info"></i>
+          <div>
+            <b>Heads up</b>
+            <div class="small">
+              If your KV binding name isn’t exactly <b>TOKENS</b>, nothing will work.
             </div>
           </div>
-          <div class="cardBody" style="padding-top:0;">
-            <div class="pill" style="justify-content:space-between; width:100%;">
-              <span id="whoami">Not logged</span>
-              <span id="planTag">FREE</span>
+        </div>
+        <div class="small">
+          Routes used:
+          <div class="status" style="margin-top:8px">
+POST /api/register
+POST /api/login
+POST /api/upload-file  (multipart/form-data, header x-auth-token)
+GET  /api/files-list   (header x-auth-token)
+DELETE /api/delete-file (json body, header x-auth-token)
+DELETE /api/delete-account (json body)
+          </div>
+        </div>
+      </div>
+
+      <div id="dashArea" class="project hidden">
+        <div class="dashTop">
+          <div>
+            <div class="pill">
+              <i data-lucide="folder-kanban"></i>
+              <span><b>Project:</b> TokenVault Files</span>
             </div>
-
-            <button id="navProject" class="btn btnGhost navBtn active">
-              <i data-lucide="folder"></i>
-              My Project
-            </button>
-
-            <button id="navAccount" class="btn btnGhost navBtn">
-              <i data-lucide="user-cog"></i>
-              Account
-            </button>
-
-            <div class="divider"></div>
-
-            <button id="btnLogout" class="btn btnGhost navBtn">
-              <i data-lucide="log-out"></i>
-              Log out
-            </button>
+            <div class="small" style="margin-top:8px">
+              Upload, list, delete. Stored as base64 in KV under <span style="font-family:var(--mono)">&lt;token&gt;/files/&lt;filename&gt;</span>.
+            </div>
+          </div>
+          <div class="row">
+            <button id="btnRefresh" class="btn"><i data-lucide="refresh-ccw"></i> Refresh</button>
+            <button id="btnDeleteAccount" class="btn danger"><i data-lucide="trash-2"></i> Delete account</button>
           </div>
         </div>
 
-        <!-- Main -->
-        <div style="flex:1;">
-          <div class="topActions">
+        <input id="filePicker" type="file" multiple class="hidden" />
+
+        <div id="drop" class="drop">
+          <strong><i data-lucide="upload"></i> Drag & drop files here</strong>
+          <span>or click to browse • max 2MB each • multiple allowed</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="pill">
+            <i data-lucide="files"></i>
+            <span><b id="fileCount">0</b> files</span>
+          </div>
+          <div class="small">Tip: filenames are stored exactly — don’t upload duplicates unless you want overwrite.</div>
+        </div>
+
+        <div id="files" class="files"></div>
+
+        <div id="deleteBox" class="col hidden" style="margin-top:6px">
+          <div class="toast err">
+            <i data-lucide="alert-triangle"></i>
             <div>
-              <h1 class="bigTitle" style="margin:0">Alts Hosting</h1>
-              <div class="sub">One project. Upload files. Delete files. (KV backend)</div>
-            </div>
-
-            <button id="themeBtnB" class="btn btnGhost" title="Toggle theme">
-              <i id="themeIconB" data-lucide="moon"></i>
-              Theme
-            </button>
-          </div>
-
-          <!-- Project Screen -->
-          <div id="projectScreen" class="card">
-            <div class="cardHeader">
-              <div class="cardTitle">
-                <i data-lucide="folder"></i>
-                My Project
-              </div>
-              <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button id="btnRefreshFiles" class="btn btnGhost">
-                  <i data-lucide="refresh-cw"></i>
-                  Refresh
-                </button>
-                <button id="btnOpenCreateProject" class="btn btnBlue">
-                  <i data-lucide="plus"></i>
-                  Create Project
-                </button>
-              </div>
-            </div>
-
-            <div class="cardBody">
-              <!-- Create project modal-ish -->
-              <div id="createProjectBox" class="card" style="box-shadow:none; display:none; margin-bottom:12px;">
-                <div class="cardBody">
-                  <div class="muted">Project Name:</div>
-                  <input id="projectName" placeholder="Project Name" />
-                  <div class="toast">Not wired yet — UI only 😭</div>
-                  <div style="display:flex; gap:10px; margin-top:10px;">
-                    <button id="btnCloseCreateProject" class="btn btnGhost">
-                      <i data-lucide="x"></i> Close
-                    </button>
-                    <button class="btn btnBlue" disabled title="Coming soon">
-                      <i data-lucide="check"></i> Create
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="pill" style="justify-content:space-between;">
-                <span><i data-lucide="file-archive"></i> Upload Zip</span>
-                <span class="muted">Max 2MB/file</span>
-              </div>
-
-              <div id="dropZone" class="fileBox">
-                <div style="display:flex; justify-content:center; gap:10px; align-items:center;">
-                  <i data-lucide="upload-cloud"></i>
-                  Drag & drop files here, or click to browse
-                </div>
-              </div>
-              <input id="fileInput" type="file" multiple style="display:none;" />
-
-              <div class="toast" id="uploadToast"></div>
-
-              <ul id="fileList" class="fileList"></ul>
+              <b>Delete account</b>
+              <div class="small">This deletes your token + all files. Type <b>Delete Account</b> to confirm.</div>
             </div>
           </div>
-
-          <!-- Account Screen -->
-          <div id="accountScreen" class="card" style="margin-top:18px; display:none;">
-            <div class="cardHeader">
-              <div class="cardTitle">
-                <i data-lucide="user-cog"></i>
-                Account
-              </div>
-            </div>
-
-            <div class="cardBody">
-              <div class="pill" style="gap:10px;">
-                <i data-lucide="key-round"></i>
-                <span class="muted">Your token is stored locally for auto-login.</span>
-              </div>
-
-              <div class="divider"></div>
-
-              <div style="font-weight:950; font-size:16px;">Delete Account</div>
-              <div class="sub">Type <b>Delete Account</b> to confirm. This calls `/api/delete-account`.</div>
-
-              <input id="deleteText" placeholder="Delete Account" style="margin-top:10px;" />
-
-              <button id="btnDeleteAccount" class="btn btnDanger" style="margin-top:10px;">
-                <i data-lucide="trash-2"></i>
-                Delete Account
-              </button>
-
-              <div class="toast" id="deleteToast"></div>
-            </div>
+          <div class="row" style="align-items:center">
+            <input id="deleteConfirm" placeholder="Type: Delete Account" />
+            <button id="btnConfirmDelete" class="btn danger"><i data-lucide="trash"></i> Confirm</button>
+            <button id="btnCancelDelete" class="btn"><i data-lucide="x"></i> Cancel</button>
           </div>
-
         </div>
       </div>
     </div>
-
   </div>
 
 <script>
-  // ---------- helpers ----------
+  // --------------------
+  // Config
+  // --------------------
+  const MAX_FILE_BYTES = 2 * 1024 * 1024;
+
+  // --------------------
+  // Helpers
+  // --------------------
   const $ = (id) => document.getElementById(id);
+  const statusEl = $("status");
 
-  function formatBytes(n){
-    if (!Number.isFinite(n)) return "";
-    if (n < 1024) return n + " B";
-    const kb = n / 1024;
-    if (kb < 1024) return kb.toFixed(1) + " KB";
-    return (kb/1024).toFixed(1) + " MB";
+  function setStatus(msg){
+    statusEl.textContent = msg;
   }
 
-  function setToast(el, msg){
-    el.textContent = msg || "";
+  function shortToken(t){
+    if(!t) return "";
+    const s = String(t).trim();
+    if(s.length <= 14) return s;
+    return s.slice(0, 8) + "…" + s.slice(-6);
   }
 
-  // ---------- theme ----------
-  function applyThemeFromStorage(){
-    const t = localStorage.getItem("themeMode") || "light";
-    document.body.classList.toggle("dark", t === "dark");
-
-    // swap icon
-    const isDark = document.body.classList.contains("dark");
-    const iconName = isDark ? "sun" : "moon";
-    $("themeIconA")?.setAttribute("data-lucide", iconName);
-    $("themeIconB")?.setAttribute("data-lucide", iconName);
-
-    lucide.replace();
-  }
-
-  function toggleTheme(){
-    const isDark = document.body.classList.contains("dark");
-    localStorage.setItem("themeMode", isDark ? "light" : "dark");
-    applyThemeFromStorage();
-  }
-
-  // ---------- auth ----------
-  const authScreen = $("authScreen");
-  const dashScreen = $("dashScreen");
-
-  function showScreen(which){
-    authScreen.classList.remove("active");
-    dashScreen.classList.remove("active");
-    $(which).classList.add("active");
-    lucide.replace();
-  }
-
-  function makeUsername(){
-    const prefixes = ["swift","roblox","altsagent"];
-    const p = prefixes[Math.floor(Math.random()*prefixes.length)];
-    const n = Math.floor(10000 + Math.random()*90000);
+  function randomUsername(){
+    const prefixes = ["swift", "roblox", "altsagent"];
+    const p = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const n = Math.floor(10000 + Math.random() * 90000);
     return `${p}${n}`;
   }
 
-  function getToken(){ return localStorage.getItem("userToken") || ""; }
-  function getUsername(){ return localStorage.getItem("username") || ""; }
-
-  function setSession(token, username){
-    localStorage.setItem("userToken", token);
-    localStorage.setItem("username", username);
+  function saveAuth(token, username){
+    localStorage.setItem("tv_token", token);
+    localStorage.setItem("tv_user", username);
   }
 
-  function clearSession(){
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("username");
+  function clearAuth(){
+    localStorage.removeItem("tv_token");
+    localStorage.removeItem("tv_user");
   }
 
-  // ---------- API ----------
-  async function apiJson(path, options){
-    const res = await fetch(path, options);
+  function getAuth(){
+    return {
+      token: localStorage.getItem("tv_token") || "",
+      username: localStorage.getItem("tv_user") || ""
+    };
+  }
+
+  async function api(path, { method="GET", token=null, json=null, form=null } = {}){
+    const headers = {};
+    if(token) headers["x-auth-token"] = token;
+
+    let body;
+    if(json){
+      headers["content-type"] = "application/json";
+      body = JSON.stringify(json);
+    }else if(form){
+      body = form; // browser sets boundary
+    }
+
+    const res = await fetch(path, { method, headers, body });
+    const text = await res.text();
     let data = null;
-    try { data = await res.json(); } catch {}
-    if (!res.ok){
-      const msg = (data && (data.error || data.message)) ? (data.error || data.message) : `HTTP ${res.status}`;
+    try { data = text ? JSON.parse(text) : null; } catch { data = { raw: text }; }
+
+    if(!res.ok){
+      const msg = (data && data.error) ? data.error : `Request failed (${res.status})`;
       throw new Error(msg);
     }
     return data;
   }
 
-  async function apiRegister(){
-    const username = makeUsername();
-    return apiJson("/api/register", {
-      method:"POST",
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify({ username })
-    });
+  function downloadText(filename, text){
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
-  async function apiLogin(token){
-    return apiJson("/api/login", {
-      method:"POST",
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify({ token })
-    });
+  // --------------------
+  // Theme
+  // --------------------
+  function applyTheme(theme){
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("tv_theme", theme);
+    // swap icon
+    const themeBtn = $("themeBtn");
+    themeBtn.innerHTML = theme === "light"
+      ? '<i data-lucide="sun"></i>'
+      : '<i data-lucide="moon"></i>';
+    lucide.createIcons();
   }
 
-  async function apiListFiles(){
-    const token = getToken();
-    return apiJson("/api/files-list", {
-      method:"GET",
-      headers: { "x-auth-token": token }
-    });
+  // --------------------
+  // UI State
+  // --------------------
+  function showTab(which){
+    $("tabRegister").classList.toggle("active", which === "register");
+    $("tabLogin").classList.toggle("active", which === "login");
+    $("panelRegister").classList.toggle("hidden", which !== "register");
+    $("panelLogin").classList.toggle("hidden", which !== "login");
   }
 
-  async function apiUploadFiles(fileList){
-    const token = getToken();
-    const fd = new FormData();
-    for (const f of fileList) fd.append("files", f);
+  function showDashboard(on){
+    $("welcomeArea").classList.toggle("hidden", on);
+    $("dashArea").classList.toggle("hidden", !on);
 
-    const res = await fetch("/api/upload-file", {
-      method:"POST",
-      headers: { "x-auth-token": token },
-      body: fd
-    });
-
-    let data = null;
-    try { data = await res.json(); } catch {}
-    if (!res.ok){
-      const msg = (data && (data.error || data.message)) ? (data.error || data.message) : `HTTP ${res.status}`;
-      throw new Error(msg);
-    }
-    return data;
+    $("mainTitle").textContent = on ? "Dashboard" : "Welcome";
+    $("mainDesc").textContent = on
+      ? "Upload your files, list them, delete them — all stored in KV under your token."
+      : "Register or login with your token. Then manage your one-and-only project dashboard.";
   }
 
-  async function apiDeleteFile(filename){
-    const token = getToken();
-    return apiJson("/api/delete-file", {
-      method:"DELETE",
-      headers: {
-        "Content-Type":"application/json",
-        "x-auth-token": token
-      },
-      body: JSON.stringify({ filename })
-    });
-  }
-
-  async function apiDeleteAccount(){
-    const token = getToken();
-    return apiJson("/api/delete-account", {
-      method:"DELETE",
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify({ token })
-    });
-  }
-
-  // ---------- UI: auth tabs ----------
-  function setActiveTab(tab){
-    const reg = $("tabRegister");
-    const log = $("tabLogin");
-    const regPane = $("registerPane");
-    const logPane = $("loginPane");
-
-    if (tab === "register"){
-      reg.classList.remove("btnGhost"); reg.classList.add("btnBlue");
-      log.classList.remove("btnBlue"); log.classList.add("btnGhost");
-      regPane.style.display = "";
-      logPane.style.display = "none";
-    } else {
-      log.classList.remove("btnGhost"); log.classList.add("btnBlue");
-      reg.classList.remove("btnBlue"); reg.classList.add("btnGhost");
-      regPane.style.display = "none";
-      logPane.style.display = "";
+  function renderAuthMini(){
+    const { token, username } = getAuth();
+    const loggedIn = !!token && !!username;
+    $("authMini").classList.toggle("hidden", !loggedIn);
+    if(loggedIn){
+      $("authUser").textContent = `@${username}`;
+      $("authTokenShort").textContent = `token: ${shortToken(token)}`;
     }
   }
 
-  // ---------- UI: dashboard nav ----------
-  function showDashTab(which){
-    const proj = $("projectScreen");
-    const acc = $("accountScreen");
-    const navP = $("navProject");
-    const navA = $("navAccount");
+  // --------------------
+  // Dashboard: Files
+  // --------------------
+  function fileRow({ filename, meta }){
+    const div = document.createElement("div");
+    div.className = "file";
 
-    if (which === "project"){
-      proj.style.display = "";
-      acc.style.display = "none";
-      navP.classList.add("active");
-      navA.classList.remove("active");
-    } else {
-      proj.style.display = "none";
-      acc.style.display = "";
-      navA.classList.add("active");
-      navP.classList.remove("active");
+    const left = document.createElement("div");
+    left.className = "name";
+    left.innerHTML = `<i data-lucide="file"></i> <b title="${filename}">${filename}</b>`;
+
+    const right = document.createElement("div");
+    right.className = "row";
+    right.style.alignItems = "center";
+
+    const metaEl = document.createElement("div");
+    metaEl.className = "meta";
+    if(meta){
+      const size = meta.size ?? 0;
+      const type = meta.type ?? "unknown";
+      metaEl.textContent = `${(size/1024).toFixed(1)}KB • ${type}`;
+    }else{
+      metaEl.textContent = "—";
     }
-  }
 
-  // ---------- UI: files ----------
-  function guessIcon(name){
-    const lower = (name || "").toLowerCase();
-    if (lower.endsWith(".py")) return "pyramid";
-    if (lower.endsWith(".zip")) return "file-archive";
-    if (lower.endsWith(".txt")) return "file-text";
-    if (lower.endsWith(".js")) return "file-code";
-    if (lower.endsWith(".html")) return "file-code-2";
-    if (lower.endsWith(".css")) return "palette";
-    return "file";
-  }
-
-  async function refreshFilesUI(){
-    const listEl = $("fileList");
-    setToast($("uploadToast"), "Loading files...");
-    listEl.innerHTML = "";
-
-    try{
-      const data = await apiListFiles();
-      const files = data.files || [];
-
-      if (files.length === 0){
-        setToast($("uploadToast"), "No files yet. Upload something 👇");
-        return;
-      }
-
-      setToast($("uploadToast"), "");
-
-      for (const f of files){
-        // files can be strings OR objects depending on backend; normalize:
-        const filename = typeof f === "string" ? f : (f.name || "");
-        const size = typeof f === "object" ? f.size : undefined;
-
-        const li = document.createElement("li");
-        li.className = "fileItem";
-
-        const ic = document.createElement("i");
-        ic.setAttribute("data-lucide", guessIcon(filename));
-        li.appendChild(ic);
-
-        const nameDiv = document.createElement("div");
-        nameDiv.className = "fileName";
-        nameDiv.textContent = filename;
-        li.appendChild(nameDiv);
-
-        const metaDiv = document.createElement("div");
-        metaDiv.className = "fileMeta";
-        metaDiv.textContent = size ? formatBytes(size) : "";
-        li.appendChild(metaDiv);
-
-        const delBtn = document.createElement("button");
-        delBtn.className = "btn btnGhost miniBtn";
-        delBtn.innerHTML = `<i data-lucide="trash-2"></i> Delete`;
-        delBtn.onclick = async () => {
-          if (!confirm(`Delete "${filename}"?`)) return;
-          try{
-            setToast($("uploadToast"), `Deleting ${filename}...`);
-            await apiDeleteFile(filename);
-            setToast($("uploadToast"), `Deleted: ${filename}`);
-            await refreshFilesUI();
-          }catch(e){
-            setToast($("uploadToast"), `Delete failed: ${e.message}`);
-          }
-        };
-
-        li.appendChild(delBtn);
-        listEl.appendChild(li);
-      }
-
-      lucide.replace();
-    }catch(e){
-      setToast($("uploadToast"), `List failed: ${e.message}\n(Usually KV binding name is wrong or route missing)`);
-    }
-  }
-
-  // ---------- boot ----------
-  function fillWhoAmI(){
-    const u = getUsername();
-    $("whoami").textContent = u ? u : "Unknown";
-  }
-
-  async function doAutoLoginIfToken(){
-    const token = getToken();
-    if (!token) return;
-
-    // verify token with /api/login so we KNOW backend works
-    try{
-      const data = await apiLogin(token);
-      setSession(token, data.username || getUsername() || "user");
-      showScreen("dashScreen");
-      fillWhoAmI();
-      showDashTab("project");
-      await refreshFilesUI();
-    }catch(e){
-      // token invalid, boot to auth
-      clearSession();
-      showScreen("authScreen");
-      setToast($("loginToast"), `Saved token invalid. Please login again.\n${e.message}`);
-    }
-  }
-
-  // ---------- events ----------
-  window.addEventListener("DOMContentLoaded", async () => {
-    applyThemeFromStorage();
-    lucide.replace();
-
-    $("themeBtnA").onclick = toggleTheme;
-    $("themeBtnB").onclick = toggleTheme;
-
-    $("tabRegister").onclick = () => setActiveTab("register");
-    $("tabLogin").onclick = () => setActiveTab("login");
-
-    // Register
-    $("btnRegister").onclick = async () => {
-      setToast($("regToast"), "Generating token...");
-      setToast($("regTokenToast"), "");
-      $("regToken").value = "";
-      $("btnCopyToken").disabled = true;
-      $("btnDownloadToken").disabled = true;
-      $("btnGoDashboardFromReg").disabled = true;
-
+    const del = document.createElement("button");
+    del.className = "btn danger";
+    del.style.padding = "10px 12px";
+    del.innerHTML = `<i data-lucide="trash-2"></i> Delete`;
+    del.onclick = async () => {
+      if(!confirm(`Delete "${filename}" ?`)) return;
       try{
-        const data = await apiRegister();
-        setSession(data.token, data.username);
-        $("regToken").value = data.token;
-        setToast($("regToast"), `Done! Username: ${data.username}`);
-
-        $("btnCopyToken").disabled = false;
-        $("btnDownloadToken").disabled = false;
-        $("btnGoDashboardFromReg").disabled = false;
-
-        fillWhoAmI();
+        const { token } = getAuth();
+        setStatus(`Deleting ${filename}...`);
+        await api("/api/delete-file", { method:"DELETE", token, json:{ filename } });
+        setStatus(`Deleted ${filename}.`);
+        await refreshFiles();
       }catch(e){
-        setToast($("regToast"), `Register failed: ${e.message}`);
+        setStatus("Delete failed: " + e.message);
+        alert(e.message);
+      }
+    };
+
+    right.appendChild(metaEl);
+    right.appendChild(del);
+
+    div.appendChild(left);
+    div.appendChild(right);
+    return div;
+  }
+
+  async function refreshFiles(){
+    const { token } = getAuth();
+    if(!token) return;
+
+    setStatus("Loading files...");
+    const data = await api("/api/files-list", { method:"GET", token });
+    const list = data.files || [];
+
+    $("fileCount").textContent = list.length;
+
+    const container = $("files");
+    container.innerHTML = "";
+
+    if(list.length === 0){
+      const empty = document.createElement("div");
+      empty.className = "toast";
+      empty.innerHTML = `<i data-lucide="inbox"></i><div><b>No files yet</b><div class="small">Upload something 👀</div></div>`;
+      container.appendChild(empty);
+    }else{
+      for(const item of list){
+        container.appendChild(fileRow(item));
+      }
+    }
+
+    lucide.createIcons();
+    setStatus("Files loaded.");
+  }
+
+  async function uploadFiles(files){
+    const { token } = getAuth();
+    if(!token) throw new Error("Not logged in.");
+
+    const tooBig = [...files].find(f => f.size > MAX_FILE_BYTES);
+    if(tooBig) throw new Error(`"${tooBig.name}" is bigger than 2MB.`);
+
+    const form = new FormData();
+    for(const f of files) form.append("files", f, f.name);
+
+    setStatus(`Uploading ${files.length} file(s)...`);
+    const data = await api("/api/upload-file", { method:"POST", token, form });
+    setStatus(`Uploaded: ${data.saved?.length || 0} file(s).`);
+    await refreshFiles();
+  }
+
+  // --------------------
+  // Init + Events
+  // --------------------
+  (function init(){
+    // theme
+    const savedTheme = localStorage.getItem("tv_theme") || "dark";
+    applyTheme(savedTheme);
+
+    $("themeBtn").onclick = () => {
+      const current = document.documentElement.getAttribute("data-theme") || "dark";
+      applyTheme(current === "dark" ? "light" : "dark");
+    };
+
+    // tabs
+    $("tabRegister").onclick = () => showTab("register");
+    $("tabLogin").onclick = () => showTab("login");
+
+    // register username auto
+    $("regUsername").value = randomUsername();
+
+    // register
+    $("btnRegister").onclick = async () => {
+      try{
+        const username = $("regUsername").value.trim() || randomUsername();
+        setStatus("Registering...");
+        const data = await api("/api/register", { method:"POST", json:{ username } });
+
+        const token = data.token;
+        $("regToken").textContent = token;
+        $("regResult").classList.remove("hidden");
+
+        // store but don’t auto-login unless you go dashboard
+        saveAuth(token, data.username);
+
+        renderAuthMini();
+        setStatus("Registered. Token created.");
+
+      }catch(e){
+        setStatus("Register failed: " + e.message);
+        alert(e.message);
       }
     };
 
     $("btnCopyToken").onclick = async () => {
-      const t = $("regToken").value.trim();
-      if (!t) return;
+      const t = $("regToken").textContent.trim();
+      if(!t) return;
       await navigator.clipboard.writeText(t);
-      setToast($("regTokenToast"), "Copied ✅");
+      setStatus("Token copied to clipboard.");
     };
 
     $("btnDownloadToken").onclick = () => {
-      const t = $("regToken").value.trim();
-      if (!t) return;
-      const blob = new Blob([t], { type:"text/plain" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "token.txt";
-      a.click();
-      URL.revokeObjectURL(a.href);
-      setToast($("regTokenToast"), "Downloaded token.txt ✅");
+      const t = $("regToken").textContent.trim();
+      if(!t) return;
+      downloadText("token.txt", t + "\n");
+      setStatus("Downloaded token.txt");
     };
 
-    $("btnGoDashboardFromReg").onclick = async () => {
-      showScreen("dashScreen");
-      fillWhoAmI();
-      showDashTab("project");
-      await refreshFilesUI();
+    $("btnGoDashFromReg").onclick = async () => {
+      const auth = getAuth();
+      if(!auth.token) return;
+      showDashboard(true);
+      await refreshFiles();
     };
 
-    // Login
+    // login
     $("btnLogin").onclick = async () => {
-      setToast($("loginToast"), "Logging in...");
-      const token = $("loginToken").value.trim();
-      if (!token){
-        setToast($("loginToast"), "Paste token first.");
+      try{
+        const token = $("loginToken").value.trim();
+        if(!token) throw new Error("Paste a token.");
+        setStatus("Logging in...");
+        const data = await api("/api/login", { method:"POST", json:{ token } });
+        saveAuth(token, data.username);
+        renderAuthMini();
+        setStatus("Logged in.");
+        showDashboard(true);
+        await refreshFiles();
+      }catch(e){
+        setStatus("Login failed: " + e.message);
+        alert(e.message);
+      }
+    };
+
+    // logout
+    $("btnLogout").onclick = () => {
+      clearAuth();
+      renderAuthMini();
+      showDashboard(false);
+      setStatus("Logged out.");
+    };
+
+    $("btnGoDash").onclick = async () => {
+      const auth = getAuth();
+      if(!auth.token || !auth.username){
+        alert("Login first.");
         return;
       }
-      try{
-        const data = await apiLogin(token);
-        setSession(token, data.username);
-        setToast($("loginToast"), "Login OK ✅");
-        showScreen("dashScreen");
-        fillWhoAmI();
-        showDashTab("project");
-        await refreshFilesUI();
-      }catch(e){
-        setToast($("loginToast"), `Login failed: ${e.message}`);
-      }
+      showDashboard(true);
+      await refreshFiles();
     };
 
-    // Dashboard nav
-    $("navProject").onclick = () => showDashTab("project");
-    $("navAccount").onclick = () => showDashTab("account");
+    // dashboard upload drop
+    const drop = $("drop");
+    const picker = $("filePicker");
 
-    $("btnLogout").onclick = () => {
-      clearSession();
-      showScreen("authScreen");
-      setActiveTab("login");
-      setToast($("loginToast"), "Logged out.");
-    };
-
-    // Create project UI (fake)
-    $("btnOpenCreateProject").onclick = () => {
-      $("createProjectBox").style.display = "";
-      lucide.replace();
-    };
-    $("btnCloseCreateProject").onclick = () => {
-      $("createProjectBox").style.display = "none";
-    };
-
-    // Files
-    $("btnRefreshFiles").onclick = refreshFilesUI;
-
-    const drop = $("dropZone");
-    const input = $("fileInput");
-
-    drop.onclick = () => input.click();
+    drop.onclick = () => picker.click();
 
     drop.addEventListener("dragover", (e) => {
       e.preventDefault();
       drop.classList.add("drag");
     });
+
     drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+
     drop.addEventListener("drop", async (e) => {
       e.preventDefault();
       drop.classList.remove("drag");
-      const files = [...e.dataTransfer.files];
-      await handleUpload(files);
+      const files = e.dataTransfer.files;
+      if(!files || files.length === 0) return;
+      try{ await uploadFiles(files); }
+      catch(err){ setStatus("Upload failed: " + err.message); alert(err.message); }
     });
 
-    input.addEventListener("change", async () => {
-      const files = [...input.files];
-      input.value = "";
-      await handleUpload(files);
+    picker.addEventListener("change", async () => {
+      if(!picker.files || picker.files.length === 0) return;
+      try{ await uploadFiles(picker.files); }
+      catch(err){ setStatus("Upload failed: " + err.message); alert(err.message); }
+      picker.value = "";
     });
 
-    async function handleUpload(files){
-      if (!files || files.length === 0) return;
-      // client-side size guard too (2MB)
-      const tooBig = files.find(f => f.size > 2*1024*1024);
-      if (tooBig){
-        setToast($("uploadToast"), `Too big: ${tooBig.name} (2MB max)`);
-        return;
-      }
+    // refresh
+    $("btnRefresh").onclick = async () => {
+      try{ await refreshFiles(); }
+      catch(e){ setStatus("Refresh failed: " + e.message); alert(e.message); }
+    };
 
+    // delete account flow
+    $("btnDeleteAccount").onclick = () => {
+      $("deleteBox").classList.remove("hidden");
+      $("deleteConfirm").value = "";
+      $("deleteConfirm").focus();
+    };
+
+    $("btnCancelDelete").onclick = () => {
+      $("deleteBox").classList.add("hidden");
+    };
+
+    $("btnConfirmDelete").onclick = async () => {
       try{
-        setToast($("uploadToast"), "Uploading...");
-        const data = await apiUploadFiles(files);
-        const count = (data.uploaded || []).length;
-        setToast($("uploadToast"), `Uploaded ${count} file(s) ✅`);
-        await refreshFilesUI();
-      }catch(e){
-        setToast($("uploadToast"), `Upload failed: ${e.message}`);
-      }
-    }
+        const text = $("deleteConfirm").value.trim();
+        if(text !== "Delete Account") throw new Error('Type exactly: Delete Account');
+        const { token } = getAuth();
+        if(!token) throw new Error("Not logged in.");
 
-    // Delete account
-    $("btnDeleteAccount").onclick = async () => {
-      setToast($("deleteToast"), "");
-      if ($("deleteText").value.trim() !== "Delete Account"){
-        setToast($("deleteToast"), "Type exactly: Delete Account");
-        return;
-      }
-      if (!confirm("Delete your account and ALL files?")) return;
+        setStatus("Deleting account...");
+        await api("/api/delete-account", { method:"DELETE", json:{ token } });
 
-      try{
-        setToast($("deleteToast"), "Deleting...");
-        await apiDeleteAccount();
-        setToast($("deleteToast"), "Deleted ✅");
-        localStorage.clear();
-        showScreen("authScreen");
-        setActiveTab("register");
+        clearAuth();
+        renderAuthMini();
+        showDashboard(false);
+        $("deleteBox").classList.add("hidden");
+        setStatus("Account deleted.");
+        alert("Account deleted.");
       }catch(e){
-        setToast($("deleteToast"), `Delete failed: ${e.message}`);
+        setStatus("Delete failed: " + e.message);
+        alert(e.message);
       }
     };
 
-    // Auto-login verify
-    await doAutoLoginIfToken();
-  });
-</script>
+    // auto login on load
+    const auth = getAuth();
+    renderAuthMini();
+    if(auth.token){
+      // try verify token quietly
+      api("/api/login", { method:"POST", json:{ token: auth.token } })
+        .then((data) => {
+          saveAuth(auth.token, data.username);
+          renderAuthMini();
+          showDashboard(true);
+          return refreshFiles();
+        })
+        .catch(() => {
+          clearAuth();
+          renderAuthMini();
+          showDashboard(false);
+        });
+    }
 
-<script>
-  // first render icons
-  lucide.replace();
+    // icons
+    lucide.createIcons();
+  })();
 </script>
-
 </body>
 </html>
